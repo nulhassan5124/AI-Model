@@ -3,7 +3,7 @@ import pandas as pd
 import joblib
 import os
 
-st.set_page_config(page_title="NutriSip x Starbucks | Noor Ul Hassan Awan", page_icon="☕", layout="wide")
+st.set_page_config(page_title="Starbucks x NutriSip | Noor Ul Hassan Awan", page_icon="☕", layout="wide")
 
 for k, v in [("fat", 4.0), ("carb", 18.0), ("protein", 6.0), ("selected_drink", "Cold Coffee")]:
     if k not in st.session_state:
@@ -18,11 +18,11 @@ def set_drink(name, f, c, p):
 st.markdown("""
 <style>
     .stApp { background: #FFFFFF; }
-    .block-container { max-width: 1100px; padding-top: 1rem; }
+    .block-container { max-width: 1050px; padding-top: 0rem; }
     .card { background: #F9F9F9; border: 1px solid #EEE; border-radius: 16px; padding: 24px; }
-    .cat-head { font-size: 13px; font-weight: 800; letter-spacing: 1.5px; color: #007042; margin: 24px 0 8px 0; padding-bottom: 6px; border-bottom: 2px solid #007042; }
+    .cat-head { font-size: 13px; font-weight: 800; letter-spacing: 1.5px; color: #007042; margin: 22px 0 8px 0; padding-bottom: 6px; border-bottom: 2px solid #007042; }
     .drink-box { background: white; border: 1px solid #EEE; border-radius: 12px; padding: 14px 10px; text-align: center; }
-    .stButton > button { background: #007042 !important; color: white !important; border-radius: 10px !important; border: none !important; font-weight: 600 !important; height: 42px !important; }
+    .stButton > button { background: #007042 !important; color: white !important; border-radius: 10px !important; border: none !important; font-weight: 600 !important; height: 42px !important; font-size: 12px !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -35,39 +35,39 @@ try:
 except:
     model_ok = False
 
-# TOP WITH STARBUCKS LOGO
-col1, col2 = st.columns([3, 1])
-with col1:
+# ============================================================
+# 1. TOP - LOGO IN CIRCLE
+# ============================================================
+st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
+c1, c2, c3 = st.columns([1, 1, 1])
+with c2:
     if os.path.exists("logo.png"):
-        c1, c2 = st.columns([0.15, 0.85])
-        with c1:
-            st.image("logo.png", width=75)
-        with c2:
-            st.markdown("""
-            <div style="margin-top:10px;">
-                <div style="font-size:22px; font-weight:900; line-height:1;">STARBUCKS <span style="font-weight:400;">x NutriSip</span></div>
-                <div style="font-size:11px; color:#007042; letter-spacing:2px; font-weight:700;">CALORIE INTELLIGENCE PROJECT</div>
-            </div>
-            """, unsafe_allow_html=True)
+        st.image("logo.png", width=160)
     else:
         st.markdown("""
-        <div style="display:flex; align-items:center; gap:10px;">
-            <div style="width:55px; height:55px; background:#007042; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:900; font-size:22px;">S</div>
-            <div><div style="font-size:22px; font-weight:900;">STARBUCKS x NutriSip</div><div style="font-size:11px; color:#007042; letter-spacing:2px;">CALORIE INTELLIGENCE</div></div>
+        <div style="width:160px; height:160px; background:#007042; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto; border: 6px solid #E8F5EE;">
+            <div style="text-align:center; color:white;">
+                <div style="font-size:42px; font-weight:900; line-height:1;">S</div>
+                <div style="font-size:11px; letter-spacing:2px; font-weight:700;">STARBUCKS</div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
-with col2:
-    st.markdown("""<div style="background:#007042; color:white; padding:8px 14px; border-radius:20px; font-size:11px; font-weight:700; text-align:center; margin-top:12px;">DEPLOYED BY NOOR UL HASSAN AWAN</div>""", unsafe_allow_html=True)
+    st.markdown("""
+    <div style="text-align:center; margin-top:12px;">
+        <div style="font-size:24px; font-weight:900; line-height:1;">STARBUCKS <span style="font-weight:400;">x NutriSip</span></div>
+        <div style="font-size:11px; color:#007042; letter-spacing:2px; font-weight:700; margin-top:4px;">CALORIE INTELLIGENCE PROJECT • 2026</div>
+        <h1 style="font-size:38px; font-weight:900; line-height:1.1; margin-top:16px;">Know What<br>You Drink.</h1>
+        <p style="color:#666; font-size:14px;">Starbucks Global Menu se drink choose karo, AI batayega High ya Low Calorie.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.divider()
 
-st.markdown("""
-<div style="padding: 10px 0 6px 0;">
-    <div style="font-size:11px; letter-spacing:2px; font-weight:700; color:#007042;">STARBUCKS GLOBAL MENU • AI PROJECT • 2026</div>
-    <h1 style="font-size:52px; font-weight:900; line-height:1; margin:12px 0;">Know What<br>You Drink.</h1>
-    <p style="color:#666; font-size:15px; max-width:600px;">Powered by Starbucks Global Menu Dataset. Select a drink and our Decision Tree AI will tell you if it's High or Low Calorie.</p>
-</div>
-""", unsafe_allow_html=True)
+# ============================================================
+# 2. PRODUCTS - ONLY HEADINGS
+# ============================================================
+st.markdown("### Our Products")
+st.caption("Select a drink — Detail neechay aa jayegi")
 
 menu = {
     "HOT COFFEE": [("Black Coffee", "5 kcal", 0.1, 0.0, 0.3), ("Caffe Latte", "190 kcal", 7.0, 15.0, 12.0), ("Cappuccino", "140 kcal", 5.0, 12.0, 8.0), ("Caramel Macchiato", "250 kcal", 10.0, 35.0, 7.0), ("White Mocha", "400 kcal", 18.0, 55.0, 10.0)],
@@ -90,23 +90,30 @@ for cat, drinks in menu.items():
             if st.button(badge, key=f"{cat}_{i}", use_container_width=True):
                 set_drink(name, f, c, p); st.rerun()
 
-st.write("")
+# ============================================================
+# 3. PRODUCT DETAIL
+# ============================================================
+st.markdown("<div style='height:14px;'></div>", unsafe_allow_html=True)
+st.markdown("### Product Detail")
+st.caption(f"Selected Product: {st.session_state.selected_drink}")
+
 left, right = st.columns([1, 1.2], gap="medium")
 with left:
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown(f"### Your Drink: {st.session_state.selected_drink}")
+    st.markdown(f"#### {st.session_state.selected_drink}")
+    st.write("Nutrition values neechay se adjust kar sakte ho:")
     fat = st.slider("Fat (g)", 0.0, 30.0, key="fat")
     carb = st.slider("Carbs (g)", 0.0, 100.0, key="carb")
     protein = st.slider("Protein (g)", 0.0, 30.0, key="protein")
     est = int(fat*9 + carb*4 + protein*4)
-    st.markdown(f"**Estimated: {est} kcal**")
+    st.markdown(f"**Estimated Calories: {est} kcal**")
     st.progress(min(int(est/2000*100), 100))
     st.caption(f"Daily Budget 2000 kcal • {est/2000*100:.1f}% used")
     st.markdown('</div>', unsafe_allow_html=True)
 
 with right:
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown("### AI Result — Starbucks Model")
+    st.markdown("#### AI Result")
     if not model_ok:
         st.error("Model file missing.")
     else:
@@ -117,19 +124,25 @@ with right:
             if pred == 1:
                 st.error(f"High Calorie — {est} kcal")
                 st.write(f"Confidence: {prob[1]*100:.1f}% • Your {st.session_state.selected_drink} is over 150 kcal.")
+                st.info("Tip: Non-fat milk + Sugar-free syrup use karo.")
             else:
                 st.success(f"Low Calorie — {est} kcal")
-                st.write(f"Confidence: {prob[0]*100:.1f}% • Your {st.session_state.selected_drink} is safe.")
+                st.write(f"Confidence: {prob[0]*100:.1f}% • Your {st.session_state.selected_drink} is safe for daily use.")
+                st.info("Tip: Great choice, keep this routine.")
             comp = pd.DataFrame({"Drink": [st.session_state.selected_drink, "Black Coffee", "Cold Coffee", "Frappuccino"], "Calories": [est, 5, 120, 370]})
             st.bar_chart(comp.set_index("Drink"))
         else:
-            st.write("Menu se drink choose karo aur Predict dabao.")
+            st.write("Product choose kar ke Predict dabao.")
     st.markdown('</div>', unsafe_allow_html=True)
 
+# ============================================================
+# 4. END - TUMHARA NAAM
+# ============================================================
 st.markdown("""
-<div style="background:#007042; color:white; padding:22px; border-radius:16px; margin-top:24px; display:flex; justify-content:space-between; align-items:center;">
-    <div><b>STARBUCKS x NutriSip</b><br><span style="font-size:12px; color:#C7E8D5;">AI Calorie Intelligence • 2026</span></div>
-    <div style="text-align:center;"><div style="font-size:10px; color:#C7E8D5;">DEPLOYED BY</div><b>NOOR UL HASSAN AWAN</b><br><span style="font-size:12px; color:#C7E8D5;">Lahore, Pakistan</span></div>
-    <div style="font-size:11px; color:#C7E8D5; text-align:right;">Decision Tree • 94.2% Accuracy</div>
+<div style="background:#007042; color:white; padding:28px; border-radius:16px; margin-top:30px; text-align:center;">
+    <div style="font-size:11px; letter-spacing:2px; color:#C7E8D5;">DEPLOYED & DEVELOPED BY</div>
+    <div style="font-size:26px; font-weight:900; margin-top:6px;">NOOR UL HASSAN AWAN</div>
+    <div style="font-size:13px; color:#C7E8D5; margin-top:4px;">Lahore, Pakistan 🇵🇰 • Starbucks x NutriSip • 2026</div>
+    <div style="font-size:11px; color:#A8D5BC; margin-top:10px;">Decision Tree Model • 94.2% Accuracy • Semester Project</div>
 </div>
 """, unsafe_allow_html=True)
