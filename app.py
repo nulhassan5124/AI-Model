@@ -5,29 +5,29 @@ import os
 
 st.set_page_config(page_title="Starbucks x NutriSip", page_icon="☕", layout="wide")
 
-for k, v in [("fat", 4.0), ("carb", 18.0), ("protein", 6.0), ("selected_drink", "Cold Coffee"), ("cal", 120)]:
+for k, v in [("fat", 4.0), ("carb", 18.0), ("protein", 6.0), ("selected_drink", "Cold Coffee")]:
     if k not in st.session_state:
         st.session_state[k] = v
 
-def set_drink(name, cal, f, c, p):
-    st.session_state.selected_drink = name
-    st.session_state.cal = cal
+def set_drink(name, f, c, p):
     st.session_state.fat = f
     st.session_state.carb = c
     st.session_state.protein = p
+    st.session_state.selected_drink = name
 
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Poppins:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Poppins:wght@400;600;700;800&display=swap');
     .stApp { background: #FFFFFF; }
-    .block-container { max-width: 1050px; padding-top: 1rem; }
+    .block-container { max-width: 1100px; padding-top: 0.5rem; }
     * { font-family: 'Poppins', sans-serif !important; }
     h1, h2 { font-family: 'Playfair Display', serif !important; }
-    .logo-wrap { display: flex; justify-content: center; background: white; padding: 10px; }
-    .logo-wrap img { width: 220px !important; border-radius: 0 !important; }
-    .menu-card { background: #F9F9F9; border: 1px solid #EEE; border-radius: 16px; padding: 20px; }
-    .cat-head { font-size: 13px; font-weight: 800; letter-spacing: 2.5px; color: #007042; margin: 28px 0 10px 0; padding-bottom: 8px; border-bottom: 2.5px solid #007042; text-transform: uppercase; }
-    .stButton > button { background: #007042 !important; color: white !important; border-radius: 10px !important; border: none !important; font-weight: 600 !important; }
+    .logo-center { display:flex; justify-content:center; }
+    .logo-center img { width: 240px !important; height: 240px !important; border-radius: 50% !important; border: 8px solid #D4E9D2 !important; box-shadow: 0 0 0 8px #F0FFF4, 0 15px 35px rgba(0,112,66,0.25) !important; }
+    .detail-box { background: linear-gradient(135deg, #F0FFF4 0%, #FFFFFF 100%); border: 2px solid #007042; border-radius: 18px; padding: 24px; text-align:center; margin-top: 18px; }
+    .side-box { background: #F9F9F9; border: 1.5px solid #EEE; border-radius: 16px; padding: 18px; height: 100%; }
+    .side-box:hover { border-color: #007042; box-shadow: 0 8px 20px rgba(0,112,66,0.1); }
+    .stButton > button { background: #007042 !important; color: white !important; border-radius: 10px !important; font-weight: 700 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -37,92 +37,122 @@ def load_model():
     except: return None
 model = load_model()
 
-# 1. LOGO - TUMHARA BHEJA HUA
-c1, c2, c3 = st.columns([1, 1.2, 1])
+# ================= 1. TOP LOGO - 3RD NUMBER WALA =================
+st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
+c1, c2, c3 = st.columns([1, 1, 1])
 with c2:
+    # Tumhara teesra wala gold wala logo - yehi sabse pyara tha
     if os.path.exists("logo.png"):
+        st.markdown('<div class="logo-center">', unsafe_allow_html=True)
         st.image("logo.png")
+        st.markdown('</div>', unsafe_allow_html=True)
     else:
-        st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/1200px-Starbucks_Corporation_Logo_2011.svg.png")
-    st.markdown("""
-    <div style="text-align:center; margin-top:15px;">
-        <div style="display:inline-block; background:#F0FFF4; border:1px solid #C7E8D5; color:#007042; padding:6px 14px; border-radius:20px; font-size:10px; font-weight:800; letter-spacing:2px;">★ STARBUCKS GLOBAL • AI INTELLIGENCE • 2026 ★</div>
-        <h1 style="font-size:52px; font-weight:900; line-height:0.95; margin-top:12px;">Know What<br><span style="color:#007042; font-style:italic;">You Drink.</span></h1>
-        <p style="color:#666; font-size:14px;">Menu se drink choose karo, AI batayegi High ya Low Calorie</p>
+        st.markdown("""
+        <div style="width:240px; height:240px; background: radial-gradient(circle at 30% 30%, #1B4332, #081C15); border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; margin:0 auto; border: 8px solid #D4E9D2; box-shadow: 0 0 0 8px #F0FFF4, 0 15px 35px rgba(0,112,66,0.25);">
+            <div style="font-size:55px;">☕</div>
+            <div style="width:60px; height:2px; background:#D4A574; margin:10px 0;"></div>
+            <div style="color:#D4A574; font-size:13px; letter-spacing:4px; font-weight:800;">CAFÉ LUMIÈRE</div>
+            <div style="color:#95D5B2; font-size:9px; letter-spacing:3px; margin-top:6px;">PREMIUM COFFEE</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+# ================= 2. LOGO DETAIL - NAME + KAB BANI =================
+st.markdown("""
+<div class="detail-box">
+    <h1 style="font-size:42px; margin:0; color:#081C15;">STARBUCKS x NutriSip</h1>
+    <div style="font-size:12px; letter-spacing:4px; color:#007042; font-weight:800; margin-top:8px;">EST. 1971 • SEATTLE, USA • PREMIUM COFFEE ROASTERS</div>
+    <div style="width:80px; height:3px; background:#D4A574; margin:14px auto; border-radius:10px;"></div>
+    <p style="font-size:14px; color:#444; line-height:1.8; max-width:750px; margin:0 auto;">
+        <b>Starbucks Corporation</b> 1971 mein Seattle, Washington mein bani thi. Aaj ye duniya ki sab se bari coffeehouse chain hai, 35,000+ stores ke saath 80 countries mein.
+        <b>NutriSip</b> iska AI version hai jo batata hai ke aap jo drink pee rahe ho wo <b>High Calorie hai ya Low Calorie.</b> 94.2% Accuracy ke saath.
+    </p>
+    <div style="display:flex; justify-content:center; gap:18px; margin-top:16px; flex-wrap:wrap;">
+        <span style="background:white; border:1px solid #C7E8D5; padding:7px 14px; border-radius:20px; font-size:11px; font-weight:700;">☕ FOUNDED: March 30, 1971</span>
+        <span style="background:white; border:1px solid #C7E8D5; padding:7px 14px; border-radius:20px; font-size:11px; font-weight:700;">🌍 80+ COUNTRIES</span>
+        <span style="background:white; border:1px solid #C7E8D5; padding:7px 14px; border-radius:20px; font-size:11px; font-weight:700;">★ AI POWERED 2026</span>
     </div>
-    """, unsafe_allow_html=True)
+</div>
+""", unsafe_allow_html=True)
 
+# ================= 3. TWO SIDE - MENU | PRODUCTS =================
+st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
+left_col, right_col = st.columns(2, gap="large")
+
+# ---- LEFT SIDE - MENU (FATS, CAL, CARBS) ----
+with left_col:
+    st.markdown('<div class="side-box">', unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; color:#007042;'>📋 STARBUCKS MENU</h2>")
+    st.markdown("<p style='font-size:12px; color:#888;'>Click any drink to open its nutrition folder</p>")
+    
+    menu_items = [
+        ("Black Coffee", 5, 0.1, 0.0, 0.3),
+        ("Caffe Latte", 190, 7.0, 15.0, 12.0),
+        ("Cold Coffee", 120, 4.0, 18.0, 6.0),
+        ("Iced Latte", 130, 5.0, 12.0, 8.0),
+        ("Matcha Latte", 200, 7.0, 26.0, 8.0),
+    ]
+    
+    for name, cal, f, c, p in menu_items:
+        with st.expander(f"{name} - {cal} kcal"):
+            st.write(f"**Calories:** {cal} kcal")
+            st.write(f"**Fat:** {f} g | **Carbs:** {c} g | **Protein:** {p} g")
+            st.write(f"**Formula:** {f}*9 + {c}*4 + {p}*4 = {int(f*9 + c*4 + p*4)} kcal")
+            if st.button(f"Select {name} →", key=f"menu_{name}", use_container_width=True):
+                set_drink(name, f, c, p)
+                st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# ---- RIGHT SIDE - PRODUCTS (CATEGORIES) ----
+with right_col:
+    st.markdown('<div class="side-box">', unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; color:#081C15;'>☕ PRODUCTS / CATEGORIES</h2>")
+    st.markdown("<p style='font-size:12px; color:#888;'>Click category to open folder</p>")
+
+    with st.expander("🔥 HOT COFFEE - 5 Products"):
+        st.write("Black Coffee (5 kcal), Latte (190), Cappuccino (140), Macchiato (250), White Mocha (400)")
+        st.caption("Fat: 0.1g - 18g | Carbs: 0g - 55g")
+
+    with st.expander("❄️ COLD COFFEE - 5 Products"):
+        st.write("Iced Americano (10), Cold Coffee (120), Iced Latte (130), Cold Brew (15), Caramel Latte (220)")
+        st.caption("Best for summer, low to medium calories")
+
+    with st.expander("🥤 FRAPPUCCINO - 4 Products"):
+        st.write("Mocha (370), Caramel (380), Vanilla (350), Java Chip (420)")
+        st.caption("High Calorie - Fat 14g-19g")
+
+    with st.expander("🍵 TEA & MATCHA"):
+        st.write("Green Tea (0 kcal), Matcha Latte (200), Chai Latte (240)")
+        st.caption("Lowest fat options")
+
+    with st.expander("🧃 JUICE & REFRESHERS"):
+        st.write("Strawberry Acai (90), Mango (100), Pink Drink (140)")
+        st.caption("Fat < 1g, refreshing")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# ================= 4. SELECTED DRINK AI =================
 st.divider()
-
-# 2. MENU - WITH FULL NUTRITION (FATS, CAL, CARBS)
-st.markdown("<h2>Our Starbucks Menu - Full Nutrition Detail</h2>", unsafe_allow_html=True)
-
-# Menu Data with Fats, Cal, Carbs, Protein
-menu_data = [
-    ["Black Coffee", "Hot Coffee", 5, 0.1, 0.0, 0.3],
-    ["Caffe Latte", "Hot Coffee", 190, 7.0, 15.0, 12.0],
-    ["Cappuccino", "Hot Coffee", 140, 5.0, 12.0, 8.0],
-    ["Caramel Macchiato", "Hot Coffee", 250, 10.0, 35.0, 7.0],
-    ["Cold Coffee", "Cold Coffee", 120, 4.0, 18.0, 6.0],
-    ["Iced Latte", "Cold Coffee", 130, 5.0, 12.0, 8.0],
-    ["Cold Brew", "Cold Coffee", 15, 0.2, 2.0, 0.5],
-    ["Mocha Frappuccino", "Frappuccino", 370, 15.0, 54.0, 5.0],
-    ["Caramel Frappuccino", "Frappuccino", 380, 16.0, 56.0, 5.0],
-    ["Green Tea", "Tea", 0, 0.0, 0.0, 0.0],
-    ["Matcha Latte", "Tea", 200, 7.0, 26.0, 8.0],
-    ["Pink Drink", "Refreshers", 140, 3.0, 25.0, 1.0],
-    ["Mango Dragonfruit", "Refreshers", 100, 0.2, 24.0, 0.2],
-]
-
-df_menu = pd.DataFrame(menu_data, columns=["Drink Name", "Category", "Calories (kcal)", "Fat (g)", "Carbs (g)", "Protein (g)"])
-
-# Show Menu as Table
-st.dataframe(df_menu, use_container_width=True, hide_index=True)
-
-# Select Drink Buttons
-st.markdown("<div class='cat-head'>✦ SELECT ANY DRINK FROM MENU ✦</div>", unsafe_allow_html=True)
-cols = st.columns(4)
-for i, row in enumerate(menu_data):
-    name, cat, cal, f, c, p = row
-    with cols[i % 4]:
-        if st.button(f"{name}\n{cal} kcal", key=f"m_{i}", use_container_width=True):
-            set_drink(name, cal, f, c, p)
-            st.rerun()
-
-st.markdown(f"<p style='color:#007042; font-weight:800; margin-top:15px;'>Selected: {st.session_state.selected_drink} | {st.session_state.cal} kcal | Fat: {st.session_state.fat}g | Carbs: {st.session_state.carb}g | Protein: {st.session_state.protein}g</p>", unsafe_allow_html=True)
-
-# 3. AI ANALYSIS
-left, right = st.columns([1, 1.2], gap="medium")
-with left:
-    st.markdown('<div class="menu-card">', unsafe_allow_html=True)
-    st.markdown(f"<h3>{st.session_state.selected_drink} - Detail</h3>")
+st.markdown(f"<h3>Selected: <span style='color:#007042;'>{st.session_state.selected_drink}</span> - Full Nutrition</h3>", unsafe_allow_html=True)
+col1, col2 = st.columns([1,1.2])
+with col1:
     fat = st.slider("Fat (g)", 0.0, 30.0, key="fat")
-    carb = st.slider("Carbs (g)", 0.0, 100.0, key="carb")
+    carb = st.slider("Carb (g)", 0.0, 100.0, key="carb")
     protein = st.slider("Protein (g)", 0.0, 30.0, key="protein")
     est = int(fat*9 + carb*4 + protein*4)
-    st.metric("Estimated Calories", f"{est} kcal")
-    st.progress(min(int(est/500*100), 100))
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.metric("Total Calories", f"{est} kcal", f"Fat {fat}g, Carbs {carb}g, Protein {protein}g")
+with col2:
+    if model and st.button("Predict Now →", use_container_width=True):
+        df = pd.DataFrame([[fat, carb, protein]], columns=['Fat (g)', 'Carb. (g)', 'Protein'])
+        pred = model.predict(df)[0]
+        if pred == 1: st.error(f"HIGH Calorie - {est} kcal")
+        else: st.success(f"LOW Calorie - {est} kcal")
 
-with right:
-    st.markdown('<div class="menu-card">', unsafe_allow_html=True)
-    st.markdown("<h3>AI Prediction</h3>")
-    if model:
-        if st.button("Predict My Drink →", use_container_width=True):
-            df = pd.DataFrame([[fat, carb, protein]], columns=['Fat (g)', 'Carb. (g)', 'Protein'])
-            pred = model.predict(df)[0]
-            if pred == 1: st.error(f"HIGH Calorie - {est} kcal")
-            else: st.success(f"LOW Calorie - {est} kcal")
-            st.write(f"Drink: {st.session_state.selected_drink} | Fat: {fat}g, Carbs: {carb}g, Protein: {protein}g, Cal: {est}")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# 4. TUMHARA NAAM - LAST MEIN
+# ================= 5. LAST MEIN TUMHARA NAAM =================
 st.markdown("""
-<div style="background: linear-gradient(135deg, #007042 0%, #000000 100%); color:white; padding:36px 20px; border-radius:22px; margin-top:36px; text-align:center;">
-    <div style="font-size:10px; letter-spacing:4px; color:#A8D5BC; font-weight:700;">CRAFTED & DEVELOPED BY</div>
-    <div style="font-size:36px; font-weight:900; margin-top:10px; font-family:'Playfair Display', serif;">Noor Ul Hassan Awan</div>
-    <div style="width:70px; height:3px; background:#FFD966; margin:14px auto; border-radius:10px;"></div>
-    <div style="font-size:13px; color:#C7E8D5;">Lahore, Pakistan 🇵🇰 • Starbucks x NutriSip • 2026</div>
-    <div style="font-size:11px; color:#8BC4A3; margin-top:8px;">Semester Project • Decision Tree • 94.2% Accuracy</div>
+<div style="background: #081C15; color:white; padding:32px 20px; border-radius:20px; margin-top:30px; text-align:center;">
+    <div style="font-size:10px; letter-spacing:4px; color:#95D5B2;">DEVELOPED BY</div>
+    <div style="font-size:34px; font-weight:900; margin-top:8px; font-family:'Playfair Display', serif;">Noor Ul Hassan Awan</div>
+    <div style="width:60px; height:3px; background:#D4A574; margin:12px auto;"></div>
+    <div style="font-size:13px; color:#D8F3DC;">Lahore, Pakistan • 2026 • Starbucks x NutriSip</div>
 </div>
 """, unsafe_allow_html=True)
