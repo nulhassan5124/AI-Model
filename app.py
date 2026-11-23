@@ -3,7 +3,7 @@ import pandas as pd
 import joblib
 import os
 
-st.set_page_config(page_title="NutriSip | Noor Ul Hassan Awan", page_icon="☕", layout="wide")
+st.set_page_config(page_title="NutriSip x Starbucks | Noor Ul Hassan Awan", page_icon="☕", layout="wide")
 
 for k, v in [("fat", 4.0), ("carb", 18.0), ("protein", 6.0), ("selected_drink", "Cold Coffee")]:
     if k not in st.session_state:
@@ -20,9 +20,9 @@ st.markdown("""
     .stApp { background: #FFFFFF; }
     .block-container { max-width: 1100px; padding-top: 1rem; }
     .card { background: #F9F9F9; border: 1px solid #EEE; border-radius: 16px; padding: 24px; }
-    .cat-head { font-size: 13px; font-weight: 800; letter-spacing: 1.5px; color: #000; margin: 24px 0 8px 0; padding-bottom: 6px; border-bottom: 2px solid #000; }
+    .cat-head { font-size: 13px; font-weight: 800; letter-spacing: 1.5px; color: #007042; margin: 24px 0 8px 0; padding-bottom: 6px; border-bottom: 2px solid #007042; }
     .drink-box { background: white; border: 1px solid #EEE; border-radius: 12px; padding: 14px 10px; text-align: center; }
-    .stButton > button { background: #000 !important; color: white !important; border-radius: 10px !important; border: none !important; font-weight: 600 !important; height: 42px !important; font-size: 12px !important; }
+    .stButton > button { background: #007042 !important; color: white !important; border-radius: 10px !important; border: none !important; font-weight: 600 !important; height: 42px !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -35,41 +35,37 @@ try:
 except:
     model_ok = False
 
-# ---------- TOP BAR WITH REAL LOGO ----------
+# TOP WITH STARBUCKS LOGO
 col1, col2 = st.columns([3, 1])
 with col1:
     if os.path.exists("logo.png"):
-        c1, c2 = st.columns([0.12, 0.88])
+        c1, c2 = st.columns([0.15, 0.85])
         with c1:
-            st.image("logo.png", width=70)
+            st.image("logo.png", width=75)
         with c2:
             st.markdown("""
-            <div style="margin-top:8px;">
-                <div style="font-size:22px; font-weight:900; line-height:1;">NutriSip</div>
-                <div style="font-size:11px; color:#888; letter-spacing:2px; font-weight:700;">COFFEE • NUTRITION • WELLNESS</div>
+            <div style="margin-top:10px;">
+                <div style="font-size:22px; font-weight:900; line-height:1;">STARBUCKS <span style="font-weight:400;">x NutriSip</span></div>
+                <div style="font-size:11px; color:#007042; letter-spacing:2px; font-weight:700;">CALORIE INTELLIGENCE PROJECT</div>
             </div>
             """, unsafe_allow_html=True)
     else:
         st.markdown("""
         <div style="display:flex; align-items:center; gap:10px;">
-            <div style="width:50px; height:50px; background:#000; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#FFD966; font-weight:900; font-size:24px;">N</div>
-            <div><div style="font-size:22px; font-weight:900; line-height:1;">NutriSip</div><div style="font-size:11px; color:#888; letter-spacing:2px;">COFFEE • NUTRITION • WELLNESS</div></div>
+            <div style="width:55px; height:55px; background:#007042; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:900; font-size:22px;">S</div>
+            <div><div style="font-size:22px; font-weight:900;">STARBUCKS x NutriSip</div><div style="font-size:11px; color:#007042; letter-spacing:2px;">CALORIE INTELLIGENCE</div></div>
         </div>
         """, unsafe_allow_html=True)
-
 with col2:
-    st.markdown("""
-    <div style="background:#000; color:white; padding:8px 14px; border-radius:20px; font-size:11px; font-weight:700; text-align:center; margin-top:12px;">DEPLOYED BY NOOR UL HASSAN AWAN</div>
-    """, unsafe_allow_html=True)
+    st.markdown("""<div style="background:#007042; color:white; padding:8px 14px; border-radius:20px; font-size:11px; font-weight:700; text-align:center; margin-top:12px;">DEPLOYED BY NOOR UL HASSAN AWAN</div>""", unsafe_allow_html=True)
 
 st.divider()
 
-# HERO
 st.markdown("""
 <div style="padding: 10px 0 6px 0;">
-    <div style="font-size:11px; letter-spacing:2px; font-weight:700; color:#888;">INTERNATIONAL PROJECT • 2026 • SIMPLE & PROFESSIONAL</div>
+    <div style="font-size:11px; letter-spacing:2px; font-weight:700; color:#007042;">STARBUCKS GLOBAL MENU • AI PROJECT • 2026</div>
     <h1 style="font-size:52px; font-weight:900; line-height:1; margin:12px 0;">Know What<br>You Drink.</h1>
-    <p style="color:#666; font-size:15px; max-width:600px;">Select a drink from the menu below. Our AI will instantly tell you if it is High Calorie or Low Calorie.</p>
+    <p style="color:#666; font-size:15px; max-width:600px;">Powered by Starbucks Global Menu Dataset. Select a drink and our Decision Tree AI will tell you if it's High or Low Calorie.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -87,8 +83,8 @@ for cat, drinks in menu.items():
     for i, (name, kcal, f, c, p) in enumerate(drinks):
         with cols[i]:
             is_sel = st.session_state.selected_drink == name
-            border = "2px solid #000" if is_sel else "1px solid #EEE"
-            bg = "#F0F0F0" if is_sel else "white"
+            border = "2px solid #007042" if is_sel else "1px solid #EEE"
+            bg = "#F0FFF4" if is_sel else "white"
             badge = "✓ Selected" if is_sel else "Select"
             st.markdown(f"""<div class="drink-box" style="border:{border}; background:{bg};"><b>{name}</b><br><span style="font-size:12px; color:#666;">{kcal}</span></div>""", unsafe_allow_html=True)
             if st.button(badge, key=f"{cat}_{i}", use_container_width=True):
@@ -110,7 +106,7 @@ with left:
 
 with right:
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown("### AI Result")
+    st.markdown("### AI Result — Starbucks Model")
     if not model_ok:
         st.error("Model file missing.")
     else:
@@ -121,11 +117,9 @@ with right:
             if pred == 1:
                 st.error(f"High Calorie — {est} kcal")
                 st.write(f"Confidence: {prob[1]*100:.1f}% • Your {st.session_state.selected_drink} is over 150 kcal.")
-                st.info("Tip: Non-fat milk + Sugar-free syrup use karo.")
             else:
                 st.success(f"Low Calorie — {est} kcal")
-                st.write(f"Confidence: {prob[0]*100:.1f}% • Your {st.session_state.selected_drink} is safe for daily use.")
-                st.info("Tip: Great choice, keep this routine.")
+                st.write(f"Confidence: {prob[0]*100:.1f}% • Your {st.session_state.selected_drink} is safe.")
             comp = pd.DataFrame({"Drink": [st.session_state.selected_drink, "Black Coffee", "Cold Coffee", "Frappuccino"], "Calories": [est, 5, 120, 370]})
             st.bar_chart(comp.set_index("Drink"))
         else:
@@ -133,9 +127,9 @@ with right:
     st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown("""
-<div style="background:#000; color:white; padding:22px; border-radius:16px; margin-top:24px; display:flex; justify-content:space-between; align-items:center;">
-    <div><b>NutriSip</b><br><span style="font-size:12px; color:#AAA;">Semester Project 2026</span></div>
-    <div style="text-align:center;"><div style="font-size:10px; color:#AAA;">DEPLOYED BY</div><b>NOOR UL HASSAN AWAN</b><br><span style="font-size:12px; color:#AAA;">Lahore, Pakistan</span></div>
-    <div style="font-size:11px; color:#AAA; text-align:right;">Decision Tree • 94.2% Accuracy</div>
+<div style="background:#007042; color:white; padding:22px; border-radius:16px; margin-top:24px; display:flex; justify-content:space-between; align-items:center;">
+    <div><b>STARBUCKS x NutriSip</b><br><span style="font-size:12px; color:#C7E8D5;">AI Calorie Intelligence • 2026</span></div>
+    <div style="text-align:center;"><div style="font-size:10px; color:#C7E8D5;">DEPLOYED BY</div><b>NOOR UL HASSAN AWAN</b><br><span style="font-size:12px; color:#C7E8D5;">Lahore, Pakistan</span></div>
+    <div style="font-size:11px; color:#C7E8D5; text-align:right;">Decision Tree • 94.2% Accuracy</div>
 </div>
 """, unsafe_allow_html=True)
