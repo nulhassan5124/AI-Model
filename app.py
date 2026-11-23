@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import os
 
 st.set_page_config(page_title="NutriSip | Noor Ul Hassan Awan", page_icon="☕", layout="wide")
 
@@ -18,12 +19,9 @@ st.markdown("""
 <style>
     .stApp { background: #FFFFFF; }
     .block-container { max-width: 1100px; padding-top: 1rem; }
-    .top { display:flex; justify-content:space-between; align-items:center; padding-bottom: 16px; border-bottom: 1px solid #EEE; }
     .card { background: #F9F9F9; border: 1px solid #EEE; border-radius: 16px; padding: 24px; }
     .cat-head { font-size: 13px; font-weight: 800; letter-spacing: 1.5px; color: #000; margin: 24px 0 8px 0; padding-bottom: 6px; border-bottom: 2px solid #000; }
     .drink-box { background: white; border: 1px solid #EEE; border-radius: 12px; padding: 14px 10px; text-align: center; }
-    .drink-box b { font-size: 13px; }
-    .drink-box span { font-size: 12px; color: #666; }
     .stButton > button { background: #000 !important; color: white !important; border-radius: 10px !important; border: none !important; font-weight: 600 !important; height: 42px !important; font-size: 12px !important; }
 </style>
 """, unsafe_allow_html=True)
@@ -37,60 +35,50 @@ try:
 except:
     model_ok = False
 
-# TOP
-st.markdown("""
-<div class="top">
-    <div style="display:flex; align-items:center; gap:10px;">
-        <div style="width:42px; height:42px; background:#000; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:20px;">N</div>
-        <div><div style="font-size:19px; font-weight:900; line-height:1;">NutriSip</div><div style="font-size:11px; color:#888; letter-spacing:1px;">CALORIE INTELLIGENCE</div></div>
-    </div>
-    <div style="background:#000; color:white; padding:7px 14px; border-radius:20px; font-size:11px; font-weight:700;">DEPLOYED BY NOOR UL HASSAN AWAN</div>
-</div>
-""", unsafe_allow_html=True)
+# ---------- TOP BAR WITH REAL LOGO ----------
+col1, col2 = st.columns([3, 1])
+with col1:
+    if os.path.exists("logo.png"):
+        c1, c2 = st.columns([0.12, 0.88])
+        with c1:
+            st.image("logo.png", width=70)
+        with c2:
+            st.markdown("""
+            <div style="margin-top:8px;">
+                <div style="font-size:22px; font-weight:900; line-height:1;">NutriSip</div>
+                <div style="font-size:11px; color:#888; letter-spacing:2px; font-weight:700;">COFFEE • NUTRITION • WELLNESS</div>
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:50px; height:50px; background:#000; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#FFD966; font-weight:900; font-size:24px;">N</div>
+            <div><div style="font-size:22px; font-weight:900; line-height:1;">NutriSip</div><div style="font-size:11px; color:#888; letter-spacing:2px;">COFFEE • NUTRITION • WELLNESS</div></div>
+        </div>
+        """, unsafe_allow_html=True)
+
+with col2:
+    st.markdown("""
+    <div style="background:#000; color:white; padding:8px 14px; border-radius:20px; font-size:11px; font-weight:700; text-align:center; margin-top:12px;">DEPLOYED BY NOOR UL HASSAN AWAN</div>
+    """, unsafe_allow_html=True)
+
+st.divider()
 
 # HERO
 st.markdown("""
-<div style="padding: 30px 0 6px 0;">
-    <div style="font-size:11px; letter-spacing:2px; font-weight:700; color:#888;">INTERNATIONAL PROJECT • 2026</div>
+<div style="padding: 10px 0 6px 0;">
+    <div style="font-size:11px; letter-spacing:2px; font-weight:700; color:#888;">INTERNATIONAL PROJECT • 2026 • SIMPLE & PROFESSIONAL</div>
     <h1 style="font-size:52px; font-weight:900; line-height:1; margin:12px 0;">Know What<br>You Drink.</h1>
     <p style="color:#666; font-size:15px; max-width:600px;">Select a drink from the menu below. Our AI will instantly tell you if it is High Calorie or Low Calorie.</p>
 </div>
 """, unsafe_allow_html=True)
 
-# MENU - ONLY HEADINGS, NO IMAGES
 menu = {
-    "HOT COFFEE": [
-        ("Black Coffee", "5 kcal", 0.1, 0.0, 0.3),
-        ("Caffe Latte", "190 kcal", 7.0, 15.0, 12.0),
-        ("Cappuccino", "140 kcal", 5.0, 12.0, 8.0),
-        ("Caramel Macchiato", "250 kcal", 10.0, 35.0, 7.0),
-        ("White Mocha", "400 kcal", 18.0, 55.0, 10.0),
-    ],
-    "COLD COFFEE": [
-        ("Iced Americano", "10 kcal", 0.1, 1.0, 0.5),
-        ("Cold Coffee", "120 kcal", 4.0, 18.0, 6.0),
-        ("Iced Latte", "130 kcal", 5.0, 12.0, 8.0),
-        ("Cold Brew", "15 kcal", 0.2, 2.0, 0.5),
-        ("Iced Caramel Latte", "220 kcal", 8.0, 32.0, 7.0),
-    ],
-    "FRAPPUCCINO": [
-        ("Mocha Frappuccino", "370 kcal", 15.0, 54.0, 5.0),
-        ("Caramel Frappuccino", "380 kcal", 16.0, 56.0, 5.0),
-        ("Vanilla Bean Frapp", "350 kcal", 14.0, 52.0, 5.0),
-        ("Java Chip Frapp", "420 kcal", 19.0, 58.0, 6.0),
-    ],
-    "TEA & MATCHA": [
-        ("Green Tea", "0 kcal", 0.0, 0.0, 0.0),
-        ("Matcha Latte", "200 kcal", 7.0, 26.0, 8.0),
-        ("Chai Tea Latte", "240 kcal", 8.0, 34.0, 7.0),
-        ("Iced Green Tea", "5 kcal", 0.0, 1.0, 0.0),
-    ],
-    "JUICE & REFRESHERS": [
-        ("Strawberry Acai", "90 kcal", 0.1, 22.0, 0.0),
-        ("Mango Dragonfruit", "100 kcal", 0.2, 24.0, 0.2),
-        ("Pink Drink", "140 kcal", 3.0, 25.0, 1.0),
-        ("Orange Juice", "110 kcal", 0.5, 26.0, 1.0),
-    ],
+    "HOT COFFEE": [("Black Coffee", "5 kcal", 0.1, 0.0, 0.3), ("Caffe Latte", "190 kcal", 7.0, 15.0, 12.0), ("Cappuccino", "140 kcal", 5.0, 12.0, 8.0), ("Caramel Macchiato", "250 kcal", 10.0, 35.0, 7.0), ("White Mocha", "400 kcal", 18.0, 55.0, 10.0)],
+    "COLD COFFEE": [("Iced Americano", "10 kcal", 0.1, 1.0, 0.5), ("Cold Coffee", "120 kcal", 4.0, 18.0, 6.0), ("Iced Latte", "130 kcal", 5.0, 12.0, 8.0), ("Cold Brew", "15 kcal", 0.2, 2.0, 0.5), ("Iced Caramel Latte", "220 kcal", 8.0, 32.0, 7.0)],
+    "FRAPPUCCINO": [("Mocha Frappuccino", "370 kcal", 15.0, 54.0, 5.0), ("Caramel Frappuccino", "380 kcal", 16.0, 56.0, 5.0), ("Vanilla Bean Frapp", "350 kcal", 14.0, 52.0, 5.0), ("Java Chip Frapp", "420 kcal", 19.0, 58.0, 6.0)],
+    "TEA & MATCHA": [("Green Tea", "0 kcal", 0.0, 0.0, 0.0), ("Matcha Latte", "200 kcal", 7.0, 26.0, 8.0), ("Chai Tea Latte", "240 kcal", 8.0, 34.0, 7.0), ("Iced Green Tea", "5 kcal", 0.0, 1.0, 0.0)],
+    "JUICE & REFRESHERS": [("Strawberry Acai", "90 kcal", 0.1, 22.0, 0.0), ("Mango Dragonfruit", "100 kcal", 0.2, 24.0, 0.2), ("Pink Drink", "140 kcal", 3.0, 25.0, 1.0), ("Orange Juice", "110 kcal", 0.5, 26.0, 1.0)],
 }
 
 for cat, drinks in menu.items():
@@ -102,17 +90,12 @@ for cat, drinks in menu.items():
             border = "2px solid #000" if is_sel else "1px solid #EEE"
             bg = "#F0F0F0" if is_sel else "white"
             badge = "✓ Selected" if is_sel else "Select"
-            st.markdown(f"""
-            <div class="drink-box" style="border:{border}; background:{bg};">
-                <b>{name}</b><br><span>{kcal}</span>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f"""<div class="drink-box" style="border:{border}; background:{bg};"><b>{name}</b><br><span style="font-size:12px; color:#666;">{kcal}</span></div>""", unsafe_allow_html=True)
             if st.button(badge, key=f"{cat}_{i}", use_container_width=True):
                 set_drink(name, f, c, p); st.rerun()
 
 st.write("")
 left, right = st.columns([1, 1.2], gap="medium")
-
 with left:
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown(f"### Your Drink: {st.session_state.selected_drink}")
