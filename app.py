@@ -4,9 +4,8 @@ import joblib
 from datetime import datetime
 
 # ---------- 1. SETUP ----------
-st.set_page_config(page_title="Starbucks AI — Black Edition", page_icon="☕", layout="wide")
+st.set_page_config(page_title="Starbucks Calorie Predictor", page_icon="☕", layout="wide")
 
-# ---------- 2. SESSION FIX - YEHI BUG THA ----------
 if "fat" not in st.session_state:
     st.session_state.fat = 2.0
     st.session_state.carb = 25.0
@@ -17,40 +16,39 @@ def set_preset(f, c, p):
     st.session_state.carb = c
     st.session_state.protein = p
 
-# ---------- 3. BLACK & WHITE CSS - CLEAN ----------
+# ---------- 2. CSS - BLACK & WHITE PRO ----------
 st.markdown("""
 <style>
     .stApp { background: #FFFFFF; }
-    .block-container { max-width: 1150px; padding-top: 1.5rem; }
-    header[data-testid="stHeader"] { background: white; }
+    .block-container { max-width: 1150px; padding-top: 1rem; }
     section[data-testid="stSidebar"] { background: #000 !important; }
     section[data-testid="stSidebar"] * { color: white !important; }
     section[data-testid="stSidebar"] button { background: #111 !important; border: 1px solid #333 !important; color: white !important; border-radius: 8px !important; }
     section[data-testid="stSidebar"] button:hover { background: white !important; color: black !important; }
 
-    .hero { background: #000; padding: 45px 40px; border-radius: 16px; color: white; }
-    .hero h1 { color: white; font-size: 48px; font-weight: 900; line-height: 1.05; margin: 0; letter-spacing: -1px; }
-    .hero p { color: #AFAFAF; font-size: 15px; margin-top: 12px; line-height: 1.6; max-width: 620px; }
-    .badge { display: inline-block; border: 1px solid #555; padding: 5px 12px; font-size: 11px; letter-spacing: 1.5px; margin-bottom: 18px; color: #DDD; }
+    .top-header { display: flex; align-items: center; gap: 18px; padding: 20px 0; border-bottom: 2px solid #000; margin-bottom: 10px; }
+    .logo-img { width: 72px; height: 72px; border-radius: 50%; border: 2px solid #000; object-fit: cover; }
+    .brand-name { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; line-height: 1; }
+    .brand-sub { font-size: 11px; letter-spacing: 3px; color: #888; font-weight: 700; }
+
+    .hero { background: #000; padding: 40px; border-radius: 16px; color: white; margin-top: 20px; }
+    .hero h1 { color: white; font-size: 50px; font-weight: 900; line-height: 1.05; margin: 0; letter-spacing: -1px; }
+    .hero p { color: #AFAFAF; font-size: 15px; margin-top: 12px; line-height: 1.6; max-width: 650px; }
 
     .card { border: 1px solid #E6E6E6; border-radius: 16px; padding: 26px; background: white; }
-    .card h3 { margin: 0; font-size: 17px; font-weight: 800; }
-    .card p { color: #777; font-size: 13px; margin-top: 4px; }
-
+    .menu-card { border: 1px solid #E6E6E6; border-radius: 12px; padding: 16px; background: #FAFAFA; text-align: center; }
+    .menu-card:hover { border: 1.5px solid #000; background: white; }
     .kpi { border: 1px solid #E6E6E6; border-radius: 12px; padding: 16px; background: #FAFAFA; }
     .kpi b { font-size: 11px; letter-spacing: 1px; color: #888; }
-    .kpi span { font-size: 26px; font-weight: 900; display: block; margin-top: 2px; }
-
+    .kpi span { font-size: 26px; font-weight: 900; display: block; }
     .result-black { background: #000; color: white; padding: 22px; border-radius: 12px; }
     .result-white { background: #F7F7F7; color: black; padding: 22px; border-radius: 12px; border: 1.5px solid #000; }
-
-    .stButton > button { background: #000 !important; color: white !important; border-radius: 10px !important; height: 50px !important; font-weight: 800 !important; border: none !important; }
-    .stButton > button:hover { background: #333 !important; }
+    .stButton > button { background: #000 !important; color: white !important; border-radius: 10px !important; height: 52px !important; font-weight: 800 !important; border: none !important; font-size: 16px !important; }
     .stDownloadButton > button { background: white !important; color: black !important; border: 1.5px solid #000 !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- 4. MODEL ----------
+# ---------- 3. MODEL ----------
 @st.cache_resource
 def load_model():
     return joblib.load('starbucks_decision_tree_model.joblib')
@@ -61,82 +59,104 @@ try:
 except:
     model_ok = False
 
-# ---------- 5. SIDEBAR - BLACK ----------
-with st.sidebar:
-    st.markdown("## ☕ STARBUCKS")
-    st.markdown("**AI NUTRITION LAB**")
-    st.markdown("`BLACK EDITION • V7`")
-    st.divider()
-    st.markdown("### Quick Presets")
-    st.caption("Click karen, slider khud set ho jayega.")
-    if st.button("Black Coffee — 5 kcal", use_container_width=True):
-        set_preset(0.1, 0.0, 0.3); st.rerun()
-    if st.button("Caffe Latte — 190 kcal", use_container_width=True):
-        set_preset(7.0, 15.0, 12.0); st.rerun()
-    if st.button("Caramel Frappuccino — 370 kcal", use_container_width=True):
-        set_preset(15.0, 54.0, 5.0); st.rerun()
-    if st.button("Strawberry Acai — 90 kcal", use_container_width=True):
-        set_preset(0.1, 22.0, 0.0); st.rerun()
-    if st.button("Reset", use_container_width=True):
-        set_preset(2.0, 25.0, 4.0); st.rerun()
-    st.divider()
-    st.caption("Model: Decision Tree")
-    st.caption("Accuracy: 94.2%")
-    st.caption("NulHassan • Lahore, PK")
+# ---------- 4. TOP HEADER - REAL LOGO + MAIN HEADING ----------
+st.markdown("""
+<div class="top-header">
+    <img src="https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/1200px-Starbucks_Corporation_Logo_2011.svg.png" class="logo-img">
+    <div>
+        <div class="brand-name">STARBUCKS <span style="font-weight:400; color:#888;">| AI LAB</span></div>
+        <div class="brand-sub">CALORIE PREDICTOR • BLACK EDITION • V8</div>
+    </div>
+    <div style="margin-left:auto; text-align:right;">
+        <div style="font-size:12px; font-weight:700;">● LIVE</div>
+        <div style="font-size:11px; color:#888;">LAHORE, PAKISTAN</div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
-# ---------- 6. HERO ----------
+# ---------- 5. HERO - MAIN HEADING ----------
 st.markdown("""
 <div class="hero">
-    <div class="badge">● AI NUTRITION LAB — BLACK EDITION</div>
+    <div style="border:1px solid #555; display:inline-block; padding:5px 12px; font-size:11px; letter-spacing:1.5px; margin-bottom:18px;">● AI NUTRITION LAB — PRO</div>
     <h1>Know Your Drink.<br>Before You Sip It.</h1>
-    <p>Minimal. Precise. Honest. Fat, Carbs aur Protein dalen — AI 1 second me batayega ke aap ka drink <b>High Calorie (&gt;150 kcal)</b> hai ya <b>Low Calorie</b>. No colors. Just truth.</p>
+    <p>Apne drink ka Fat, Carbs aur Protein dalen. Hamara AI Decision Tree 1 second me batayega ke aap ka drink <b>High Calorie (&gt;150 kcal)</b> hai ya <b>Low Calorie</b>. Neeche diye gaye Real Starbucks Menu se bhi select kar sakte hain.</p>
 </div>
 """, unsafe_allow_html=True)
 st.write("")
 
-# ---------- 7. MAIN ----------
+# ---------- 6. REAL STARBUCKS MENU - REFERENCE DRINKS ----------
+st.markdown("### ☕ Starbucks Real Menu — Select Any Drink")
+st.markdown("<p style='color:#777; font-size:13px;'>Kisi bhi drink pe click karen, uski real nutrition value khud slider me aa jayegi.</p>", unsafe_allow_html=True)
+
+m1, m2, m3, m4, m5, m6 = st.columns(6)
+with m1:
+    st.markdown('<div class="menu-card">☕<br><b>Black Coffee</b><br><span style="font-size:12px; color:#777;">5 kcal</span></div>', unsafe_allow_html=True)
+    if st.button("Select →", key="b1", use_container_width=True):
+        set_preset(0.1, 0.0, 0.3); st.rerun()
+with m2:
+    st.markdown('<div class="menu-card">🥛<br><b>Caffe Latte</b><br><span style="font-size:12px; color:#777;">190 kcal</span></div>', unsafe_allow_html=True)
+    if st.button("Select →", key="b2", use_container_width=True):
+        set_preset(7.0, 15.0, 12.0); st.rerun()
+with m3:
+    st.markdown('<div class="menu-card">🍫<br><b>Mocha Frappuccino</b><br><span style="font-size:12px; color:#777;">370 kcal</span></div>', unsafe_allow_html=True)
+    if st.button("Select →", key="b3", use_container_width=True):
+        set_preset(15.0, 54.0, 5.0); st.rerun()
+with m4:
+    st.markdown('<div class="menu-card">🍵<br><b>Matcha Latte</b><br><span style="font-size:12px; color:#777;">200 kcal</span></div>', unsafe_allow_html=True)
+    if st.button("Select →", key="b4", use_container_width=True):
+        set_preset(7.0, 26.0, 8.0); st.rerun()
+with m5:
+    st.markdown('<div class="menu-card">🍓<br><b>Strawberry Acai</b><br><span style="font-size:12px; color:#777;">90 kcal</span></div>', unsafe_allow_html=True)
+    if st.button("Select →", key="b5", use_container_width=True):
+        set_preset(0.1, 22.0, 0.0); st.rerun()
+with m6:
+    st.markdown('<div class="menu-card">🧋<br><b>Caramel Macchiato</b><br><span style="font-size:12px; color:#777;">250 kcal</span></div>', unsafe_allow_html=True)
+    if st.button("Select →", key="b6", use_container_width=True):
+        set_preset(10.0, 35.0, 7.0); st.rerun()
+
+st.write("")
+st.write("")
+
+# ---------- 7. MAIN PREDICT AREA ----------
 left, right = st.columns([1, 1.25], gap="large")
 
 with left:
-    with st.container(border=False):
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown("### 01 — Drink Composition")
-        st.markdown("<p>Nutrition label se values select karen.</p>", unsafe_allow_html=True)
-
-        fat = st.slider("Fat (g)", 0.0, 30.0, key="fat", step=0.5)
-        carb = st.slider("Carbs (g)", 0.0, 100.0, key="carb", step=1.0)
-        protein = st.slider("Protein (g)", 0.0, 30.0, key="protein", step=0.5)
-
-        est_cal = int(fat*9 + carb*4 + protein*4)
-        st.divider()
-        a, b = st.columns(2)
-        with a:
-            st.markdown(f"<div class='kpi'><b>EST. CALORIES</b><span>{est_cal} kcal</span></div>", unsafe_allow_html=True)
-        with b:
-            st.markdown(f"<div class='kpi'><b>DAILY VALUE</b><span>{est_cal/2000*100:.1f}%</span></div>", unsafe_allow_html=True)
-        st.write("")
-        total = fat+carb+protein if (fat+carb+protein)>0 else 1
-        st.write(f"**Macro Split:** Fat {fat/total*100:.0f}% • Carbs {carb/total*100:.0f}% • Protein {protein/total*100:.0f}%")
-        st.progress(min(int((fat+carb+protein)/160*100), 100))
-        st.caption(f"Formula: Fat×9 + Carb×4 + Protein×4  |  Total Macros: {fat+carb+protein:.1f}g")
-        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown("### 01 — Drink Composition")
+    st.markdown("<p style='color:#777; font-size:13px;'>Nutrition label se values select karen ya upar menu se select karen.</p>", unsafe_allow_html=True)
+    fat = st.slider("Fat (g)", 0.0, 30.0, key="fat", step=0.5)
+    carb = st.slider("Carbs (g)", 0.0, 100.0, key="carb", step=1.0)
+    protein = st.slider("Protein (g)", 0.0, 30.0, key="protein", step=0.5)
+    est_cal = int(fat*9 + carb*4 + protein*4)
+    st.divider()
+    a, b = st.columns(2)
+    with a:
+        st.markdown(f"<div class='kpi'><b>EST. CALORIES</b><span>{est_cal} kcal</span></div>", unsafe_allow_html=True)
+    with b:
+        st.markdown(f"<div class='kpi'><b>DAILY VALUE</b><span>{est_cal/2000*100:.1f}%</span></div>", unsafe_allow_html=True)
+    st.write("")
+    total = fat+carb+protein if (fat+carb+protein)>0 else 1
+    st.write(f"**Macro Split:** Fat {fat/total*100:.0f}% • Carbs {carb/total*100:.0f}% • Protein {protein/total*100:.0f}%")
+    st.progress(min(int((fat+carb+protein)/160*100), 100))
+    st.caption("Formula: Fat×9 + Carb×4 + Protein×4")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with right:
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown("### 02 — AI Prediction Report")
-    st.markdown("<p>Decision Tree • Trained on Real Starbucks Menu</p>", unsafe_allow_html=True)
-
+    st.markdown("### 02 — AI Prediction")
+    st.markdown("<p style='color:#777; font-size:13px;'>Model: Decision Tree • Trained on Real Starbucks Menu</p>", unsafe_allow_html=True)
     if not model_ok:
-        st.error("Model file missing. 'starbucks_decision_tree_model.joblib' ko app.py ke saath rakhen.")
+        st.error("Model file missing. 'starbucks_decision_tree_model.joblib' rakhen.")
     else:
-        if st.button("ANALYZE DRINK  →", use_container_width=True):
+        # MAIN PREDICT BUTTON - BADA AUR CLEAR
+        if st.button("🔍  PREDICT CALORIES  →", use_container_width=True):
             df = pd.DataFrame([[fat, carb, protein]], columns=['Fat (g)', 'Carb. (g)', 'Protein'])
             pred = model.predict(df)[0]
             prob = model.predict_proba(df)[0]
-
             if pred == 1:
                 conf = prob[1]*100
                 health = max(15, 100 - int(est_cal/2.2))
+                label = "High Calorie"
                 st.markdown(f"""
                 <div class="result-black">
                     <div style="font-size:11px; letter-spacing:1.5px; color:#AAA;">⚠ HIGH CALORIE ALERT</div>
@@ -145,10 +165,10 @@ with right:
                 </div>
                 """, unsafe_allow_html=True)
                 tip = f"**Smart Swap:** Non-fat milk + Sugar-free Vanilla + No Whip. Aap {int(est_cal*0.4)} kcal bacha loge."
-                label = "High Calorie"
             else:
                 conf = prob[0]*100
                 health = min(96, 100 - int(est_cal/5))
+                label = "Low Calorie"
                 st.markdown(f"""
                 <div class="result-white">
                     <div style="font-size:11px; letter-spacing:1.5px; color:#666;">✓ HEALTHY CHOICE</div>
@@ -156,9 +176,7 @@ with right:
                     <p style="color:#666; font-size:13px; margin:6px 0 0 0;">Perfect! 150 kcal se kam hai. Guilt-free enjoy karen.</p>
                 </div>
                 """, unsafe_allow_html=True)
-                tip = "**Excellent:** Ye choice bilkul sahi hai. Apne goal ke andar ho."
-                label = "Low Calorie"
-
+                tip = "**Excellent:** Ye choice bilkul sahi hai."
             st.write("")
             m1, m2, m3 = st.columns(3)
             m1.metric("Confidence", f"{conf:.1f}%")
@@ -167,33 +185,38 @@ with right:
             st.write("**Confidence**")
             st.progress(int(conf))
             st.info(tip)
-
             report = f"""STARBUCKS - BLACK EDITION REPORT
-Date: {datetime.now().strftime('%d %B %Y, %I:%M %p')}
+Date: {datetime.now().strftime('%d %B %Y')}
 Fat: {fat}g | Carbs: {carb}g | Protein: {protein}g
 Estimated Calories: {est_cal} kcal
 Prediction: {label} | Confidence: {conf:.1f}%
 Health Score: {health}/100
-Tip: {tip}
 Developed by NulHassan | Lahore, Pakistan
 """
-            st.download_button("⬇ DOWNLOAD OFFICIAL REPORT", report, file_name="Starbucks_Black_Report.txt", use_container_width=True)
+            st.download_button("⬇ DOWNLOAD OFFICIAL REPORT", report, file_name="Starbucks_Report.txt", use_container_width=True)
         else:
             st.markdown("""
-            <div style="background:#FAFAFA; border:1.5px dashed #DDD; padding:40px; border-radius:12px; text-align:center;">
-                <div style="font-size:44px;">☕</div>
-                <div style="font-weight:800; margin-top:8px;">READY TO ANALYZE</div>
-                <div style="color:#888; font-size:13px; margin-top:5px;">Left se values set karen ya sidebar se preset dabayen.<br>Phir <b>ANALYZE</b> dabayen.</div>
+            <div style="background:#FAFAFA; border:1.5px dashed #DDD; padding:35px; border-radius:12px; text-align:center;">
+                <div style="font-size:40px;">☕</div>
+                <div style="font-weight:800; margin-top:8px;">READY TO PREDICT</div>
+                <div style="color:#888; font-size:13px; margin-top:5px;">Upar menu se drink select karen ya left se values dalen.<br>Phir <b>PREDICT CALORIES</b> dabayen.</div>
             </div>
             """, unsafe_allow_html=True)
-            st.write("")
-            st.markdown("""
-            **Why Black Edition is Pro?**
-            - **Luxury Minimal:** Sirf Black & White, no distraction
-            - **Working Presets:** Ab 100% kaam karenge, bug fix hai
-            - **Health Score:** 0-100 instant decision
-            - **Smart Swaps:** AI calories kam karne ka tarika batayega
-            """)
     st.markdown('</div>', unsafe_allow_html=True)
+
+# ---------- SIDEBAR ----------
+with st.sidebar:
+    st.markdown("## ☕ STARBUCKS")
+    st.markdown("**AI NUTRITION LAB**")
+    st.caption("Black Edition • V8 • Live")
+    st.divider()
+    st.markdown("### About Model")
+    st.caption("Decision Tree Classifier")
+    st.caption("Accuracy: 94.2%")
+    st.caption("Features: Fat, Carbs, Protein")
+    st.divider()
+    st.markdown("### Developer")
+    st.caption("NulHassan • Lahore, PK")
+    st.caption("© 2026")
 
 st.markdown("<p style='text-align:center; color:#999; font-size:11px; margin-top:40px; border-top:1px solid #EEE; padding-top:15px;'>© 2026 STARBUCKS AI LAB • BLACK EDITION • CRAFTED BY NULHASSAN • LAHORE, PAKISTAN</p>", unsafe_allow_html=True)
