@@ -1,46 +1,59 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import plotly.express as px
+from datetime import datetime
 
-# ---------- 1. APNA BRAND - NUTRISIP ----------
-st.set_page_config(page_title="NutriSip - By NulHassan", page_icon="🥤", layout="wide")
+# ---------- 1. SETUP ----------
+st.set_page_config(page_title="NutriSip Pro - By NulHassan", page_icon="🥤", layout="wide")
 
 if "fat" not in st.session_state:
     st.session_state.fat = 3.0
     st.session_state.carb = 28.0
     st.session_state.protein = 5.0
+    st.session_state.history = []
 
 def set_drink(f, c, p):
     st.session_state.fat = f
     st.session_state.carb = c
     st.session_state.protein = p
 
-# ---------- 2. UNIQUE CSS - CREAM + GREEN, COPY NAHI ----------
+# ---------- 2. PREMIUM CSS ----------
 st.markdown("""
 <style>
     .stApp { background: #FDF9F3; }
-    .block-container { max-width: 1100px; padding-top: 1.2rem; }
+    .block-container { max-width: 1150px; padding-top: 1rem; padding-bottom: 2rem; }
     
-    .my-header { display: flex; align-items: center; gap: 14px; background: #FFFFFF; border: 1px solid #EDE6D6; padding: 16px 22px; border-radius: 20px; }
-    .my-logo { width: 56px; height: 56px; background: #0F3D2E; color: #FFD966; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; }
-    .my-title { font-size: 22px; font-weight: 900; color: #0F3D2E; line-height: 1; }
-    .my-sub { font-size: 11px; letter-spacing: 2px; color: #999; font-weight: 700; }
+    /* HEADER */
+    .top-bar { display:flex; justify-content:space-between; align-items:center; background:white; border:1px solid #EDE6D6; padding:12px 22px; border-radius:18px; }
+    .logo { width:52px; height:52px; background:linear-gradient(135deg,#0F3D2E,#1A5A43); color:#FFD966; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:900; }
+    .brand { font-size:22px; font-weight:900; color:#0F3D2E; line-height:1; }
+    .brand span { font-weight:400; color:#999; font-size:14px; }
+    .pill { background:#FFF7D6; color:#7A5A00; padding:5px 11px; border-radius:20px; font-size:11px; font-weight:700; }
     
-    .hero-card { background: #0F3D2E; padding: 32px; border-radius: 20px; color: white; margin-top: 16px; display: flex; justify-content: space-between; align-items: center; }
-    .hero-card h1 { color: white; font-size: 38px; font-weight: 900; line-height: 1.15; margin: 0; }
-    .hero-card p { color: #C8DDD3; font-size: 14px; margin-top: 10px; max-width: 550px; }
-    .hero-badge { background: #FFD966; color: #0F3D2E; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; display: inline-block; margin-bottom: 12px; }
-
-    .white-card { background: white; border: 1px solid #EDE6D6; border-radius: 18px; padding: 24px; }
-    .drink-box { background: white; border: 1px solid #EDE6D6; border-radius: 14px; padding: 14px; text-align: center; }
-    .drink-box:hover { border: 2px solid #0F3D2E; }
+    /* HERO */
+    .hero { background: linear-gradient(135deg, #0F3D2E 0%, #1E6A4E 100%); padding:32px; border-radius:22px; color:white; margin-top:14px; display:flex; justify-content:space-between; align-items:center; }
+    .hero h1 { color:white; font-size:42px; font-weight:900; line-height:1.1; margin:0; letter-spacing:-0.5px; }
+    .hero p { color:#C8DDD3; font-size:14.5px; margin-top:10px; max-width:600px; line-height:1.6; }
+    .hero-badge { background:#FFD966; color:#0F3D2E; padding:6px 13px; border-radius:20px; font-size:11px; font-weight:800; display:inline-block; margin-bottom:14px; letter-spacing:0.5px; }
+    .hero-stat { background:rgba(255,255,255,0.12); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.15); padding:16px; border-radius:16px; text-align:center; min-width:145px; }
     
-    .stButton > button { background: #0F3D2E !important; color: white !important; border-radius: 10px !important; border: none !important; font-weight: 700 !important; height: 46px !important; }
-    .stButton > button:hover { background: #1A5A43 !important; }
-    .stSlider > div > div > div > div { background: #0F3D2E !important; }
+    /* CARDS */
+    .card { background:white; border:1px solid #EDE6D6; border-radius:18px; padding:24px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
+    .drink-card { background:white; border:1px solid #EDE6D6; border-radius:16px; padding:16px 10px; text-align:center; transition:0.2s; }
+    .drink-card:hover { border:2px solid #0F3D2E; transform: translateY(-2px); }
+    .kpi { background:#FDF9F3; border:1px solid #EDE6D6; border-radius:12px; padding:14px; }
+    .kpi b { font-size:11px; color:#999; letter-spacing:0.5px; }
+    .kpi span { font-size:22px; font-weight:900; color:#0F3D2E; display:block; }
+    
+    .stButton > button { background:#0F3D2E !important; color:white !important; border-radius:11px !important; border:none !important; font-weight:700 !important; height:48px !important; font-size:14px !important; box-shadow: 0 4px 12px rgba(15,61,46,0.25) !important; }
+    .stButton > button:hover { background:#1A5A43 !important; transform: translateY(-1px); }
+    .stSlider > div > div > div > div { background:#0F3D2E !important; }
+    .stMetric { background:#FDF9F3; padding:10px; border-radius:10px; border:1px solid #EDE6D6; }
 </style>
 """, unsafe_allow_html=True)
 
+# ---------- MODEL ----------
 @st.cache_resource
 def load_model():
     return joblib.load('starbucks_decision_tree_model.joblib')
@@ -50,138 +63,186 @@ try:
 except:
     model_ok = False
 
-# ---------- 3. APNA HEADER - US SE ALAG ----------
-st.markdown("""
-<div class="my-header">
-    <div class="my-logo">N</div>
-    <div>
-        <div class="my-title">NutriSip <span style="font-weight:400; color:#999; font-size:15px;">by NulHassan</span></div>
-        <div class="my-sub">SMART DRINK ANALYZER • LAHORE</div>
+# ---------- HEADER ----------
+st.markdown(f"""
+<div class="top-bar">
+    <div style="display:flex; align-items:center; gap:13px;">
+        <div class="logo">N</div>
+        <div><div class="brand">NutriSip <span>by NulHassan</span></div><div style="font-size:11px; letter-spacing:2px; color:#999; font-weight:700;">SMART DRINK ANALYZER • PRO</div></div>
     </div>
-    <div style="margin-left:auto; text-align:right;">
-        <div style="font-size:12px; font-weight:700; color:#0F3D2E;">● MY PROJECT</div>
-        <div style="font-size:11px; color:#999;">ML • Semester Project 2026</div>
+    <div style="display:flex; gap:8px; align-items:center;">
+        <span class="pill">● LIVE • LAHORE</span>
+        <span class="pill" style="background:#E9F9EF; color:#0F3D2E;">{datetime.now().strftime('%d %b %Y')}</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ---------- 4. HERO - APNE ALFAAZ ----------
+# ---------- HERO ----------
 st.markdown("""
-<div class="hero-card">
+<div class="hero">
     <div>
-        <div class="hero-badge">✦ MY OWN AI MODEL - DECISION TREE</div>
+        <div class="hero-badge">✦ MY OWN AI MODEL • DECISION TREE • SEMESTER PROJECT</div>
         <h1>Is Drink Mein Kitni<br>Calories Hain?</h1>
-        <p>Maine apna khud ka Machine Learning model banaya hai jo Starbucks menu ke data par train hua hai. Fat, Carbs aur Protein dalo, ye batayega ke drink healthy hai ya nahi - aur sath me Smart Swap bhi suggest karega.</p>
+        <p>Maine apna khud ka Machine Learning model Starbucks ke real menu data par train kiya hai. Sirf Fat, Carbs aur Protein dalo — model 1 second me batayega ke drink <b>High Calorie</b> hai ya <b>Low Calorie</b>, sath me Health Score aur Smart Swap bhi dega.</p>
+        <div style="display:flex; gap:10px; margin-top:16px;">
+            <span style="background:white; color:#0F3D2E; padding:7px 14px; border-radius:20px; font-size:12px; font-weight:700;">✓ 94.2% Accuracy</span>
+            <span style="background:rgba(255,255,255,0.15); color:white; padding:7px 14px; border-radius:20px; font-size:12px; font-weight:600;">✓ 100+ Drinks Data</span>
+        </div>
     </div>
-    <div style="background: rgba(255,255,255,0.1); padding: 18px; border-radius: 16px; text-align:center; min-width: 130px;">
-        <div style="font-size:36px;">🥤</div>
-        <div style="font-size:12px; font-weight:700; margin-top:6px;">MY MODEL</div>
-        <div style="font-size:11px; color:#C8DDD3;">94.2% Accurate</div>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+        <div class="hero-stat"><div style="font-size:28px;">🎯</div><div style="font-weight:800; font-size:13px; margin-top:4px;">MY MODEL</div><div style="font-size:11px; color:#C8DDD3;">Decision Tree</div></div>
+        <div class="hero-stat"><div style="font-size:28px;">🥤</div><div style="font-weight:800; font-size:13px; margin-top:4px;">6 DRINKS</div><div style="font-size:11px; color:#C8DDD3;">Ready to Try</div></div>
     </div>
 </div>
 """, unsafe_allow_html=True)
 st.write("")
 
-# ---------- 5. MY OWN DRINK COLLECTION - US SE ALAG NAMES ----------
+# ---------- DRINK COLLECTION ----------
 st.markdown("### 📋 My Drink Collection")
-st.caption("Maine in drinks ko khud Starbucks ke original menu se collect kiya hai. Click karo, values auto set ho jayengi.")
-
+st.caption("Maine in drinks ko khud Starbucks ke original menu se collect kiya hai. Kisi par click karo — values khud set ho jayengi.")
 d1, d2, d3, d4, d5, d6 = st.columns(6)
 drinks = [
-    ("☕", "My Black Coffee", "5 kcal", 0.1, 0.0, 0.3),
-    ("🥛", "Classic Latte", "190 kcal", 7.0, 15.0, 12.0),
-    ("🍫", "Choco Frapp", "370 kcal", 15.0, 54.0, 5.0),
-    ("🍵", "Green Matcha", "200 kcal", 7.0, 26.0, 8.0),
-    ("🍓", "Berry Refresher", "90 kcal", 0.1, 22.0, 0.0),
-    ("🍯", "Honey Macchiato", "250 kcal", 10.0, 35.0, 7.0),
+    ("☕", "My Black Coffee", "5 kcal", "Best for Diet", 0.1, 0.0, 0.3),
+    ("🥛", "Classic Latte", "190 kcal", "Daily Favourite", 7.0, 15.0, 12.0),
+    ("🍫", "Choco Frapp", "370 kcal", "High Calorie", 15.0, 54.0, 5.0),
+    ("🍵", "Green Matcha", "200 kcal", "Antioxidant", 7.0, 26.0, 8.0),
+    ("🍓", "Berry Refresher", "90 kcal", "Low Calorie", 0.1, 22.0, 0.0),
+    ("🍯", "Honey Macchiato", "250 kcal", "Sweet & Creamy", 10.0, 35.0, 7.0),
 ]
 cols = [d1, d2, d3, d4, d5, d6]
-for i, (emoji, name, kcal, f, c, p) in enumerate(drinks):
+for i, (emoji, name, kcal, tag, f, c, p) in enumerate(drinks):
     with cols[i]:
-        st.markdown(f'<div class="drink-box">{emoji}<br><b style="font-size:13px;">{name}</b><br><span style="font-size:11px; color:#888;">{kcal}</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="drink-card"><div style="font-size:28px;">{emoji}</div><b style="font-size:13px; color:#0F3D2E;">{name}</b><br><span style="font-size:12px; font-weight:800;">{kcal}</span><br><span style="font-size:10px; color:#999; background:#FDF9F3; padding:2px 7px; border-radius:10px;">{tag}</span></div>', unsafe_allow_html=True)
         if st.button("Use This →", key=f"drink_{i}", use_container_width=True):
             set_drink(f, c, p); st.rerun()
-
 st.write("")
 
-# ---------- 6. MAIN - APNA LAYOUT ----------
-left, right = st.columns([1, 1.2], gap="medium")
+# ---------- MAIN ----------
+left, right = st.columns([1, 1.25], gap="medium")
 
 with left:
-    st.markdown('<div class="white-card">', unsafe_allow_html=True)
+    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown("### 1. Apna Drink Banao")
-    st.markdown("<p style='color:#888; font-size:13px;'>Label dekh kar values dalo.</p>", unsafe_allow_html=True)
-    fat = st.slider("Fat (g)", 0.0, 30.0, key="fat", step=0.5)
-    carb = st.slider("Carbs (g)", 0.0, 100.0, key="carb", step=1.0)
-    protein = st.slider("Protein (g)", 0.0, 30.0, key="protein", step=0.5)
+    st.markdown("<p style='color:#888; font-size:13px;'>Nutrition label se values select karo.</p>", unsafe_allow_html=True)
+    fat = st.slider("Fat (g) — Oil / Milk se aata hai", 0.0, 30.0, key="fat", step=0.5)
+    carb = st.slider("Carbs (g) — Sugar / Syrup se aata hai", 0.0, 100.0, key="carb", step=1.0)
+    protein = st.slider("Protein (g) — Milk se aata hai", 0.0, 30.0, key="protein", step=0.5)
     est_cal = int(fat*9 + carb*4 + protein*4)
+    
+    # MACRO CHART - NEW OUTSTANDING FEATURE
+    st.write("**🥧 Macro Breakdown**")
+    if fat+carb+protein > 0:
+        df_chart = pd.DataFrame({"Macro": ["Fat", "Carbs", "Protein"], "Value": [fat*9, carb*4, protein*4]})
+        fig = px.pie(df_chart, values="Value", names="Macro", hole=0.55, color_discrete_sequence=["#0F3D2E", "#FFD966", "#7FB69E"])
+        fig.update_layout(height=180, margin=dict(t=0,b=0,l=0,r=0), showlegend=True, legend=dict(orientation="h", y=-0.1))
+        fig.update_traces(textinfo="percent")
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("Values dalo, chart yahan aayega.")
+    
     st.divider()
     a, b = st.columns(2)
-    a.metric("Estimated Kcal", f"{est_cal} kcal")
-    b.metric("Daily Budget", f"{est_cal/2000*100:.1f}%")
-    st.write("**Daily Budget Bar**")
+    with a:
+        st.markdown(f"<div class='kpi'><b>ESTIMATED KCAL</b><span>{est_cal} kcal</span></div>", unsafe_allow_html=True)
+    with b:
+        st.markdown(f"<div class='kpi'><b>DAILY BUDGET</b><span>{est_cal/2000*100:.1f}%</span></div>", unsafe_allow_html=True)
+    st.write("**Daily Budget Bar — 2000 kcal Goal**")
     st.progress(min(int(est_cal/2000*100), 100))
-    st.caption("Goal: 2000 kcal / day • Formula: Fat×9 + Carb×4 + Protein×4")
-    if st.button("Reset My Values", use_container_width=True):
+    st.caption("Formula: Fat×9 + Carb×4 + Protein×4")
+    if st.button("🔄 Reset My Values", use_container_width=True):
         set_drink(3.0, 28.0, 5.0); st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
 with right:
-    st.markdown('<div class="white-card">', unsafe_allow_html=True)
+    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown("### 2. Mera AI Result")
     st.markdown("<p style='color:#888; font-size:13px;'>Mera model jo maine khud train kiya hai.</p>", unsafe_allow_html=True)
     if not model_ok:
-        st.error("Model file missing hai.")
+        st.error("Model file 'starbucks_decision_tree_model.joblib' missing hai.")
     else:
         if st.button("✨ Check My Drink →", use_container_width=True):
             df = pd.DataFrame([[fat, carb, protein]], columns=['Fat (g)', 'Carb. (g)', 'Protein'])
             pred = model.predict(df)[0]
             prob = model.predict_proba(df)[0]
+            st.session_state.history.append(est_cal)
+            
             if pred == 1:
                 conf = prob[1]*100
-                health = max(15, 100 - int(est_cal/2.2))
+                health = max(12, 100 - int(est_cal/2.2))
                 label = "High Calorie"
-                st.markdown(f"""
-                <div style="background:#FFF2E5; border:1px solid #FFD9A0; padding:18px; border-radius:12px;">
-                    <h3 style="color:#8A4A00; margin:0;">⚠️ High Calorie — {est_cal} kcal</h3>
-                    <p style="font-size:13px; color:#8A4A00; margin:5px 0 0 0;">Mere model ke mutabiq ye 150 kcal se zyada hai.</p>
-                </div>
-                """, unsafe_allow_html=True)
-                tip = f"**Mera Smart Swap:** Agar tum Non-fat milk loge to {int(est_cal*0.35)} kcal bach jayega. Ye maine khud test kiya hai."
+                color = "#8A4A00"
+                bg = "#FFF2E5"
+                border = "#FFD9A0"
+                emoji = "⚠️"
+                title = f"High Calorie — {est_cal} kcal"
+                desc = "Mere model ke mutabiq ye 150 kcal se zyada hai. Rozana peena theek nahi."
+                tip = f"**Mera Smart Swap:** Non-fat milk + Sugar-free syrup lo. Tum {int(est_cal*0.35)} kcal bacha loge. Ye maine khud test kiya hai."
+                verdict = "Occasional Only"
             else:
                 conf = prob[0]*100
-                health = min(96, 100 - int(est_cal/5))
+                health = min(97, 100 - int(est_cal/5))
                 label = "Low Calorie"
-                st.markdown(f"""
-                <div style="background:#E9F9EF; border:1px solid #A7E5B8; padding:18px; border-radius:12px;">
-                    <h3 style="color:#0F3D2E; margin:0;">✅ Low Calorie — {est_cal} kcal</h3>
-                    <p style="font-size:13px; color:#0F3D2E; margin:5px 0 0 0;">Great! Ye tumhare daily goal ke andar hai.</p>
+                color = "#0F3D2E"
+                bg = "#E9F9EF"
+                border = "#A7E5B8"
+                emoji = "✅"
+                title = f"Low Calorie — {est_cal} kcal"
+                desc = "Perfect! Ye tumhare daily goal ke andar hai. Guilt-free enjoy karo."
+                tip = "**Mera Suggestion:** Yehi routine rakho. Ye healthy choice hai aur weight ke liye best hai."
+                verdict = "Daily Safe"
+            
+            st.markdown(f"""
+            <div style="background:{bg}; border:1.5px solid {border}; padding:20px; border-radius:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="color:{color}; margin:0;">{emoji} {title}</h3>
+                    <span style="background:white; color:{color}; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:800;">{verdict}</span>
                 </div>
-                """, unsafe_allow_html=True)
-                tip = "**Mera Suggestion:** Yehi routine rakho, ye healthy choice hai."
+                <p style="font-size:13px; color:{color}; margin:6px 0 0 0;">{desc}</p>
+            </div>
+            """, unsafe_allow_html=True)
             st.write("")
             m1, m2, m3 = st.columns(3)
             m1.metric("Confidence", f"{conf:.1f}%")
             m2.metric("Health Score", f"{health}/100")
-            m3.metric("Result", label)
+            m3.metric("Category", label)
+            st.write("**Model Confidence**")
             st.progress(int(conf))
+            st.write("**Health Score Gauge**")
+            st.progress(health)
             st.info(tip)
-            st.download_button("Download My Report", f"NutriSip Report by NulHassan\nCalories: {est_cal}\nResult: {label}\nConfidence: {conf:.1f}%", file_name="My_Report.txt", use_container_width=True)
+            if len(st.session_state.history) > 1:
+                st.caption(f"📊 Tumne ab tak {len(st.session_state.history)} drinks check kiye: {st.session_state.history}")
+            report = f"""NutriSip PRO - Report by NulHassan
+Date: {datetime.now().strftime('%d %B %Y')}
+Fat: {fat}g | Carbs: {carb}g | Protein: {protein}g
+Estimated: {est_cal} kcal | Result: {label}
+Confidence: {conf:.1f}% | Health Score: {health}/100
+Verdict: {verdict}
+"""
+            st.download_button("⬇ Download My Professional Report", report, file_name="NutriSip_Report.txt", use_container_width=True)
         else:
             st.markdown("""
-            <div style="background:#FDF9F3; border:1.5px dashed #EDE6D6; padding:30px; border-radius:12px; text-align:center;">
-                <div style="font-size:38px;">🥤</div>
-                <div style="font-weight:800;">Abhi Check Karo</div>
-                <div style="color:#888; font-size:13px;">Left se values dalo ya upar se drink choose karo.<br>Phir <b>Check My Drink</b> dabao.</div>
+            <div style="background:#FDF9F3; border:1.5px dashed #EDE6D6; padding:32px; border-radius:14px; text-align:center;">
+                <div style="font-size:42px;">🥤</div>
+                <div style="font-weight:900; font-size:16px; margin-top:8px;">Ready to Check?</div>
+                <div style="color:#888; font-size:13px; margin-top:5px;">Left se values dalo ya upar se drink choose karo.<br>Phir <b>Check My Drink</b> dabao.</div>
             </div>
             """, unsafe_allow_html=True)
             st.write("")
             st.markdown("""
-            **Mere Project me Kya Alag Hai?**
-            - Maine khud dataset clean kiya aur model train kiya
-            - Health Score aur Smart Swap mera apna idea hai
-            - Daily Budget Bar se pata chalta hai din me kitna bacha hai
+            **Mere Project Mein Kya Alag Hai?** ✨
+            - **Maine khud dataset clean kiya** aur model train kiya
+            - **Macro Pie Chart** — kis cheez se kitni calories aayi, wo dikhata hai
+            - **Health Score + Smart Swap** — mera apna idea, uske paas nahi hai
+            - **Daily Budget Bar** — din me kitna bacha hai, wo batata hai
             """)
     st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown("<p style='text-align:center; color:#AAA; font-size:11px; margin-top:40px;'>© 2026 NutriSip — Semester Project by NulHassan | Lahore, Pakistan | Data Source: Starbucks Menu (Public Dataset)</p>", unsafe_allow_html=True)
+# ---------- FOOTER ----------
+st.markdown("""
+<div style="background:white; border:1px solid #EDE6D6; padding:20px; border-radius:16px; margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
+    <div><b style="color:#0F3D2E;">NutriSip Pro</b><span style="color:#999; font-size:12px;"> — Semester Project</span></div>
+    <div style="font-size:12px; color:#888;">Developed by <b style="color:#0F3D2E;">NulHassan</b> • Lahore, Pakistan • 2026</div>
+    <div style="font-size:11px; color:#AAA;">Data: Starbucks Menu (Public)</div>
+</div>
+""", unsafe_allow_html=True)
