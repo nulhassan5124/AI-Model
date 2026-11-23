@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import joblib
-import plotly.express as px
 from datetime import datetime
 
 # ---------- 1. SETUP ----------
@@ -23,31 +22,22 @@ st.markdown("""
 <style>
     .stApp { background: #FDF9F3; }
     .block-container { max-width: 1150px; padding-top: 1rem; padding-bottom: 2rem; }
-    
-    /* HEADER */
     .top-bar { display:flex; justify-content:space-between; align-items:center; background:white; border:1px solid #EDE6D6; padding:12px 22px; border-radius:18px; }
     .logo { width:52px; height:52px; background:linear-gradient(135deg,#0F3D2E,#1A5A43); color:#FFD966; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:900; }
     .brand { font-size:22px; font-weight:900; color:#0F3D2E; line-height:1; }
     .brand span { font-weight:400; color:#999; font-size:14px; }
     .pill { background:#FFF7D6; color:#7A5A00; padding:5px 11px; border-radius:20px; font-size:11px; font-weight:700; }
-    
-    /* HERO */
     .hero { background: linear-gradient(135deg, #0F3D2E 0%, #1E6A4E 100%); padding:32px; border-radius:22px; color:white; margin-top:14px; display:flex; justify-content:space-between; align-items:center; }
-    .hero h1 { color:white; font-size:42px; font-weight:900; line-height:1.1; margin:0; letter-spacing:-0.5px; }
+    .hero h1 { color:white; font-size:42px; font-weight:900; line-height:1.1; margin:0; }
     .hero p { color:#C8DDD3; font-size:14.5px; margin-top:10px; max-width:600px; line-height:1.6; }
-    .hero-badge { background:#FFD966; color:#0F3D2E; padding:6px 13px; border-radius:20px; font-size:11px; font-weight:800; display:inline-block; margin-bottom:14px; letter-spacing:0.5px; }
-    .hero-stat { background:rgba(255,255,255,0.12); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.15); padding:16px; border-radius:16px; text-align:center; min-width:145px; }
-    
-    /* CARDS */
+    .hero-badge { background:#FFD966; color:#0F3D2E; padding:6px 13px; border-radius:20px; font-size:11px; font-weight:800; display:inline-block; margin-bottom:14px; }
+    .hero-stat { background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.15); padding:16px; border-radius:16px; text-align:center; min-width:145px; }
     .card { background:white; border:1px solid #EDE6D6; border-radius:18px; padding:24px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
-    .drink-card { background:white; border:1px solid #EDE6D6; border-radius:16px; padding:16px 10px; text-align:center; transition:0.2s; }
-    .drink-card:hover { border:2px solid #0F3D2E; transform: translateY(-2px); }
+    .drink-card { background:white; border:1px solid #EDE6D6; border-radius:16px; padding:16px 10px; text-align:center; }
     .kpi { background:#FDF9F3; border:1px solid #EDE6D6; border-radius:12px; padding:14px; }
     .kpi b { font-size:11px; color:#999; letter-spacing:0.5px; }
     .kpi span { font-size:22px; font-weight:900; color:#0F3D2E; display:block; }
-    
-    .stButton > button { background:#0F3D2E !important; color:white !important; border-radius:11px !important; border:none !important; font-weight:700 !important; height:48px !important; font-size:14px !important; box-shadow: 0 4px 12px rgba(15,61,46,0.25) !important; }
-    .stButton > button:hover { background:#1A5A43 !important; transform: translateY(-1px); }
+    .stButton > button { background:#0F3D2E !important; color:white !important; border-radius:11px !important; border:none !important; font-weight:700 !important; height:48px !important; font-size:14px !important; }
     .stSlider > div > div > div > div { background:#0F3D2E !important; }
     .stMetric { background:#FDF9F3; padding:10px; border-radius:10px; border:1px solid #EDE6D6; }
 </style>
@@ -129,16 +119,23 @@ with left:
     protein = st.slider("Protein (g) — Milk se aata hai", 0.0, 30.0, key="protein", step=0.5)
     est_cal = int(fat*9 + carb*4 + protein*4)
     
-    # MACRO CHART - NEW OUTSTANDING FEATURE
+    # MACRO BREAKDOWN - WITHOUT PLOTLY (FIXED)
     st.write("**🥧 Macro Breakdown**")
-    if fat+carb+protein > 0:
-        df_chart = pd.DataFrame({"Macro": ["Fat", "Carbs", "Protein"], "Value": [fat*9, carb*4, protein*4]})
-        fig = px.pie(df_chart, values="Value", names="Macro", hole=0.55, color_discrete_sequence=["#0F3D2E", "#FFD966", "#7FB69E"])
-        fig.update_layout(height=180, margin=dict(t=0,b=0,l=0,r=0), showlegend=True, legend=dict(orientation="h", y=-0.1))
-        fig.update_traces(textinfo="percent")
-        st.plotly_chart(fig, use_container_width=True)
+    total_macro_cal = fat*9 + carb*4 + protein*4
+    if total_macro_cal > 0:
+        fat_pct = int(fat*9/total_macro_cal*100)
+        carb_pct = int(carb*4/total_macro_cal*100)
+        pro_pct = 100 - fat_pct - carb_pct
+        st.markdown(f"""
+        <div style="font-size:12px; margin-bottom:6px;">🟢 Fat — {fat*9:.0f} kcal ({fat_pct}%)</div>
+        <div style="background:#EEE; height:10px; border-radius:10px; overflow:hidden;"><div style="background:#0F3D2E; width:{fat_pct}%; height:10px;"></div></div>
+        <div style="font-size:12px; margin:10px 0 6px 0;">🟡 Carbs — {carb*4:.0f} kcal ({carb_pct}%)</div>
+        <div style="background:#EEE; height:10px; border-radius:10px; overflow:hidden;"><div style="background:#FFD966; width:{carb_pct}%; height:10px;"></div></div>
+        <div style="font-size:12px; margin:10px 0 6px 0;">🟢 Protein — {protein*4:.0f} kcal ({pro_pct}%)</div>
+        <div style="background:#EEE; height:10px; border-radius:10px; overflow:hidden;"><div style="background:#7FB69E; width:{pro_pct}%; height:10px;"></div></div>
+        """, unsafe_allow_html=True)
     else:
-        st.info("Values dalo, chart yahan aayega.")
+        st.info("Values dalo, breakdown yahan aayega.")
     
     st.divider()
     a, b = st.columns(2)
@@ -165,32 +162,24 @@ with right:
             pred = model.predict(df)[0]
             prob = model.predict_proba(df)[0]
             st.session_state.history.append(est_cal)
-            
             if pred == 1:
                 conf = prob[1]*100
                 health = max(12, 100 - int(est_cal/2.2))
                 label = "High Calorie"
-                color = "#8A4A00"
-                bg = "#FFF2E5"
-                border = "#FFD9A0"
-                emoji = "⚠️"
+                color = "#8A4A00"; bg = "#FFF2E5"; border = "#FFD9A0"; emoji = "⚠️"
                 title = f"High Calorie — {est_cal} kcal"
                 desc = "Mere model ke mutabiq ye 150 kcal se zyada hai. Rozana peena theek nahi."
-                tip = f"**Mera Smart Swap:** Non-fat milk + Sugar-free syrup lo. Tum {int(est_cal*0.35)} kcal bacha loge. Ye maine khud test kiya hai."
+                tip = f"**Mera Smart Swap:** Non-fat milk + Sugar-free syrup lo. Tum {int(est_cal*0.35)} kcal bacha loge."
                 verdict = "Occasional Only"
             else:
                 conf = prob[0]*100
                 health = min(97, 100 - int(est_cal/5))
                 label = "Low Calorie"
-                color = "#0F3D2E"
-                bg = "#E9F9EF"
-                border = "#A7E5B8"
-                emoji = "✅"
+                color = "#0F3D2E"; bg = "#E9F9EF"; border = "#A7E5B8"; emoji = "✅"
                 title = f"Low Calorie — {est_cal} kcal"
                 desc = "Perfect! Ye tumhare daily goal ke andar hai. Guilt-free enjoy karo."
-                tip = "**Mera Suggestion:** Yehi routine rakho. Ye healthy choice hai aur weight ke liye best hai."
+                tip = "**Mera Suggestion:** Yehi routine rakho. Ye healthy choice hai."
                 verdict = "Daily Safe"
-            
             st.markdown(f"""
             <div style="background:{bg}; border:1.5px solid {border}; padding:20px; border-radius:14px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -232,13 +221,12 @@ Verdict: {verdict}
             st.markdown("""
             **Mere Project Mein Kya Alag Hai?** ✨
             - **Maine khud dataset clean kiya** aur model train kiya
-            - **Macro Pie Chart** — kis cheez se kitni calories aayi, wo dikhata hai
-            - **Health Score + Smart Swap** — mera apna idea, uske paas nahi hai
-            - **Daily Budget Bar** — din me kitna bacha hai, wo batata hai
+            - **Macro Breakdown Bars** — kis cheez se kitni calories aayi
+            - **Health Score + Smart Swap** — mera apna idea
+            - **Daily Budget Bar** — din me kitna bacha hai
             """)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------- FOOTER ----------
 st.markdown("""
 <div style="background:white; border:1px solid #EDE6D6; padding:20px; border-radius:16px; margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
     <div><b style="color:#0F3D2E;">NutriSip Pro</b><span style="color:#999; font-size:12px;"> — Semester Project</span></div>
