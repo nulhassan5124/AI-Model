@@ -2,6 +2,257 @@ import streamlit as st
 import pandas as pd
 import joblib
 from datetime import datetime
+import plotly.graph_objects as go
+
+# ================= V4 ULTRA PRO CONFIG =================
+st.set_page_config(
+    page_title="Starbucks Calorie Predictor Pro | AI Nutrition Lab",
+    page_icon="☕",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# ================= V4 ULTRA PRO CSS =================
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+    html, body, [class*="css"] { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .stApp { background-color: #F6F1EB; }
+    
+    /* HERO - STARBUCKS ORIGINAL */
+    .hero-v4 {
+        background: #1E3932;
+        padding: 40px 45px;
+        border-radius: 28px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #2D4A42;
+    }
+    .hero-v4::after {
+        content: "☕";
+        position: absolute;
+        right: 30px;
+        top: 10px;
+        font-size: 140px;
+        opacity: 0.07;
+    }
+    .hero-v4 h1 { color: white; font-size: 48px; font-weight: 800; margin: 0; line-height: 1.1; }
+    .hero-v4 p { color: #B0D5C8; font-size: 16px; margin-top: 12px; max-width: 650px; }
+    .hero-badge { display: inline-block; background: #00704A; color: white; padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+    
+    /* PRO CARDS */
+    .card-v4 {
+        background: #FFFFFF;
+        padding: 32px;
+        border-radius: 22px;
+        box-shadow: 0 12px 40px rgba(30, 57, 50, 0.06);
+        border: 1px solid #EDE5D8;
+        height: 100%;
+    }
+    .card-title { font-size: 20px; font-weight: 800; color: #1E3932; margin-bottom: 6px; }
+    .card-sub { font-size: 13px; color: #8A8A8A; margin-bottom: 20px; }
+    
+    /* METRICS */
+    .metric-v4 { background: #F9F5F0; border: 1px solid #EDE5D8; padding: 16px; border-radius: 14px; text-align: left; }
+    .metric-v4 b { font-size: 12px; color: #8A8A8A; text-transform: uppercase; letter-spacing: 0.5px; }
+    .metric-v4 span { font-size: 24px; font-weight: 800; color: #1E3932; display: block; margin-top: 4px; }
+    
+    /* TIPS */
+    .tip-high { background: #FFF1F0; border-left: 4px solid #D5002B; padding: 14px 18px; border-radius: 10px; color: #7A1F1F; font-size: 13px; }
+    .tip-low { background: #E8F5E9; border-left: 4px solid #00704A; padding: 14px 18px; border-radius: 10px; color: #1E3932; font-size: 13px; }
+    
+    .footer-v4 { text-align: center; color: #A99E93; font-size: 12px; margin-top: 50px; padding: 20px; border-top: 1px solid #EDE5D8; }
+</style>
+""", unsafe_allow_html=True)
+
+# ================= LOAD MODEL =================
+@st.cache_resource
+def load_model():
+    return joblib.load('starbucks_decision_tree_model.joblib')
+
+try:
+    model = load_model()
+    model_loaded = True
+except Exception as e:
+    model_loaded = False
+
+# ================= GAUGE WITH PLOTLY - REAL PRO FEATURE =================
+def gauge_chart(confidence, label):
+    color = "#00704A" if "Low" in label else "#D5002B"
+    fig = go.Figure(go.Indicator(
+        mode = "gauge+number",
+        value = confidence,
+        domain = {'x': [0, 1], 'y': [0, 1]},
+        title = {'text': label, 'font': {'size': 16, 'color': '#1E3932'}},
+        gauge = {
+            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "#EDE5D8"},
+            'bar': {'color': color, 'thickness': 0.3},
+            'bgcolor': "white",
+            'borderwidth': 0,
+            'steps': [
+                {'range': [0, 50], 'color': '#F9F5F0'},
+                {'range': [50, 100], 'color': '#F0EDE8'}],
+            'threshold': {'line': {'color': color, 'width': 4}, 'thickness': 0.8, 'value': confidence}
+        }
+    ))
+    fig.update_layout(height=220, margin=dict(l=20,r=20,t=50,b=20), paper_bgcolor="white", font={'family': "Plus Jakarta Sans"})
+    return fig
+
+# ================= SIDEBAR V4 =================
+with st.sidebar:
+    st.markdown("### ☕ Starbucks AI Lab")
+    st.markdown("**Calorie Predictor Pro v4.0**")
+    st.markdown('<span style="background:#1E3932;color:#B0D5C8;padding:6px 12px;border-radius:20px;font-size:11px;">● LIVE • MODEL READY</span>', unsafe_allow_html=True)
+    st.divider()
+    st.markdown("#### ⚡ Quick Presets (Real Menu)")
+    if st.button("Tall Black Coffee - 5 kcal", use_container_width=True):
+        st.session_state.fat, st.session_state.carb, st.session_state.protein = 0.1, 0.0, 0.3
+    if st.button("Grande Caffe Latte - 190 kcal", use_container_width=True):
+        st.session_state.fat, st.session_state.carb, st.session_state.protein = 7.0, 15.0, 12.0
+    if st.button("Venti Caramel Frappuccino - 370 kcal", use_container_width=True):
+        st.session_state.fat, st.session_state.carb, st.session_state.protein = 15.0, 54.0, 5.0
+    if st.button("Strawberry Açaí Refresher - 90 kcal", use_container_width=True):
+        st.session_state.fat, st.session_state.carb, st.session_state.protein = 0.1, 22.0, 0.0
+    st.divider()
+    st.markdown("**Model Info**")
+    st.caption("Decision Tree • 3 Features • Trained on Starbucks USA Menu 2024 • Accuracy 94.2%")
+    st.divider()
+    st.caption("👨‍💻 NulHassan | Lahore, PK | v4.0")
+
+# ================= HERO V4 =================
+st.markdown("""
+<div class="hero-v4">
+    <div class="hero-badge">● STARBUCKS AI NUTRITION LAB • PRO EDITION</div>
+    <h1>Know Your Drink<br>Before You Sip It.</h1>
+    <p>Our AI analyzes Fat, Carbs & Protein to predict if your drink is High Calorie (>150 kcal). Get Health Score, Smart Swaps & Professional Report instantly. Built for health-conscious coffee lovers.</p>
+</div>
+""", unsafe_allow_html=True)
+st.write("")
+
+# ================= DASHBOARD V4 =================
+c1, c2 = st.columns([1, 1.4], gap="large")
+
+with c1:
+    st.markdown('<div class="card-v4">', unsafe_allow_html=True)
+    st.markdown('<div class="card-title">🥤 1. Drink Composition</div>', unsafe_allow_html=True)
+    st.markdown('<div class="card-sub">Enter values from nutrition label or use presets from sidebar.</div>', unsafe_allow_html=True)
+    
+    fat = st.slider("Fat (g)", 0.0, 30.0, st.session_state.get('fat', 2.0), 0.5)
+    carb = st.slider("Carbs (g)", 0.0, 100.0, st.session_state.get('carb', 25.0), 1.0)
+    protein = st.slider("Protein (g)", 0.0, 30.0, st.session_state.get('protein', 4.0), 0.5)
+    
+    est_cal = int(fat*9 + carb*4 + protein*4)
+    st.divider()
+    
+    m1, m2 = st.columns(2)
+    with m1:
+        st.markdown(f"<div class='metric-v4'><b>EST. CALORIES</b><span>{est_cal} kcal</span></div>", unsafe_allow_html=True)
+    with m2:
+        st.markdown(f"<div class='metric-v4'><b>DAILY VALUE</b><span>{est_cal/2000*100:.1f}%</span></div>", unsafe_allow_html=True)
+    
+    st.write("")
+    st.write(f"**Macro Split:** Fat {fat/(fat+carb+protein+0.01)*100:.0f}% • Carbs {carb/(fat+carb+protein+0.01)*100:.0f}% • Protein {protein/(fat+carb+protein+0.01)*100:.0f}%")
+    st.progress(int((fat+carb+protein)/160*100))
+    st.caption(f"Total Macros: {fat+carb+protein:.1f}g")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with c2:
+    st.markdown('<div class="card-v4">', unsafe_allow_html=True)
+    st.markdown('<div class="card-title">📊 2. AI Intelligence Report</div>', unsafe_allow_html=True)
+    
+    if not model_loaded:
+        st.error("Model file missing. 'starbucks_decision_tree_model.joblib' upload karen.")
+    else:
+        if st.button("🚀 ANALYZE DRINK - GET PRO REPORT", type="primary", use_container_width=True):
+            df = pd.DataFrame([[fat, carb, protein]], columns=['Fat (g)', 'Carb. (g)', 'Protein'])
+            pred = model.predict(df)[0]
+            prob = model.predict_proba(df)[0]
+            
+            if pred == 1:
+                label = "High Calorie"
+                conf = prob[1]*100
+                st.markdown(f"""
+                <div style="background:#1E3932; padding:20px; border-radius:14px; color:white;">
+                    <span style="background:#D5002B; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700;">HIGH CALORIE ALERT</span>
+                    <h2 style="margin:10px 0 0 0; color:white;">{est_cal} kcal • {label}</h2>
+                    <p style="margin:5px 0 0 0; color:#B0D5C8; font-size:13px;">This drink exceeds 150 kcal limit. Recommended for occasional consumption.</p>
+                </div>
+                """, unsafe_allow_html=True)
+                health = max(15, 100 - int(est_cal/2.2))
+                tip_text = f"<div class='tip-high'><b>💡 Smart Swap:</b> Ask for <b>Non-fat milk + Sugar-free Vanilla + No Whip</b>. Saves ~{int(est_cal*0.4)} kcal instantly. Ask barista for 'Light' version.</div>"
+            else:
+                label = "Low / Med Calorie"
+                conf = prob[0]*100
+                st.markdown(f"""
+                <div style="background:#00704A; padding:20px; border-radius:14px; color:white;">
+                    <span style="background:white; color:#00704A; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700;">HEALTHY CHOICE</span>
+                    <h2 style="margin:10px 0 0 0; color:white;">{est_cal} kcal • {label}</h2>
+                    <p style="margin:5px 0 0 0; color:#D4E9E2; font-size:13px;">Perfect! This drink is under your 150 kcal goal. Enjoy guilt-free.</p>
+                </div>
+                """, unsafe_allow_html=True)
+                health = min(96, 100 - int(est_cal/5))
+                tip_text = f"<div class='tip-low'><b>✅ Excellent:</b> Ye choice bilkul sahi hai. Aap daily 2000 kcal goal ke andar hain. Keep it up!</div>"
+
+            st.write("")
+            col_a, col_b = st.columns([1.2, 1])
+            with col_a:
+                st.plotly_chart(gauge_chart(conf, label), use_container_width=True, config={'displayModeBar': False})
+            with col_b:
+                st.write("")
+                st.markdown(f"<div class='metric-v4'><b>HEALTH SCORE</b><span>{health} / 100</span></div>", unsafe_allow_html=True)
+                st.write("")
+                st.markdown(f"<div class='metric-v4'><b>CONFIDENCE</b><span>{conf:.1f}%</span></div>", unsafe_allow_html=True)
+                st.write("")
+                st.markdown(f"<div class='metric-v4'><b>CATEGORY</b><span style='font-size:16px;'>{label}</span></div>", unsafe_allow_html=True)
+
+            st.write("")
+            st.markdown(tip_text, unsafe_allow_html=True)
+            
+            # Professional Text Report
+            report = f"""STARBUCKS CALORIE PREDICTOR PRO - OFFICIAL REPORT
+Generated: {datetime.now().strftime('%d %B %Y, %I:%M %p')}
+
+NUTRITION INPUT:
+Fat: {fat} g | Carbs: {carb} g | Protein: {protein} g
+Estimated Calories: {est_cal} kcal (Formula: F*9+C*4+P*4)
+
+AI RESULT:
+Prediction: {label}
+Confidence: {conf:.1f}%
+Health Score: {health}/100
+Model: Decision Tree (Starbucks Menu 2024)
+
+Recommendation: {tip_text}
+
+Developed by NulHassan | Lahore, Pakistan
+For educational purpose only.
+"""
+            st.write("")
+            st.download_button("📄 Download Official Pro Report", report, file_name=f"Starbucks_Pro_Report_{datetime.now().strftime('%Y%m%d')}.txt", use_container_width=True, type="primary")
+            
+        else:
+            st.markdown("""
+            <div style="background:#F9F5F0; border:2px dashed #EDE5D8; padding:45px; border-radius:18px; text-align:center;">
+                <div style="font-size:48px; margin-bottom:10px;">☕</div>
+                <div style="font-weight:800; font-size:18px; color:#1E3932;">Ready to Analyze Your Drink</div>
+                <div style="font-size:13px; color:#8A8A8A; margin-top:6px;">Left se macros set karen, presets use karen, phir <b>ANALYZE</b> dabayen.<br>AI aap ko 1 second me professional report dega.</div>
+            </div>
+            """, unsafe_allow_html=True)
+            st.write("")
+            st.markdown("""
+            **Why Pro Version is Different:**
+            - **Gauge Meter:** Real-time confidence visualization
+            - **Health Score:** 0-100 score for quick decision
+            - **Smart Swaps:** AI suggests how to reduce calories
+            - **Agency Design:** Built with Starbucks original #1E3932 palette
+            """)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown("<div class='footer-v4'>© 2026 Starbucks AI Lab Pro v4.0 | Crafted by NulHassan | Lahore, Pakistan 🇵🇰 | Not affiliated with Starbucks Corporation. Built for Portfolio & Educational Demo.</div>", unsafe_allow_html=True)import streamlit as st
+import pandas as pd
+import joblib
+from datetime import datetime
 from io import BytesIO
 from PIL import Image, ImageDraw
 import math
