@@ -1,4 +1,3 @@
-# --- 1. SAB SE PEHLE IMPORTS - YEHI MISSING THA ---
 import os
 import base64
 import streamlit as st
@@ -7,7 +6,6 @@ import joblib
 
 st.set_page_config(page_title="Starbucks x NutriSip", page_icon="☕", layout="wide")
 
-# --- STATE ---
 if "selected" not in st.session_state:
     st.session_state.selected = "Caffe Latte"
     st.session_state.fat = 7.0
@@ -21,7 +19,15 @@ def select(name, f, c, p):
     st.session_state.carb = c
     st.session_state.protein = p
 
-# --- DESIGN ---
+# --- LOGO KO BASE64 MEIN BADLO TAAKE GOLD CIRCLE MEIN SAHI AAYE ---
+def get_logo_base64():
+    if os.path.exists("logo.png"):
+        with open("logo.png", "rb") as f:
+            return "data:image/png;base64," + base64.b64encode(f.read()).decode()
+    return "https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/1200px-Starbucks_Corporation_Logo_2011.svg.png"
+
+logo = get_logo_base64()
+
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Poppins:wght@400;500;600;700;800&display=swap');
@@ -46,47 +52,38 @@ def load_model():
         return None
 model = load_model()
 
-# ========== 1. GOLD CIRCLE MEIN STARBUCKS TITLE LOGO - BLACK + WHITE ==========
-# Yehi logo jo maine banaya hai - Black mein White STARBUCKS
-st.markdown("""
+# ========== 1. CIRCLE MEIN LOGO ==========
+st.markdown(f"""
 <div style="text-align:center; margin-top:15px;">
     <div style="display:inline-block; padding:10px; background: linear-gradient(145deg, #FFD700, #C9A227, #FFF3B0, #C9A227); border-radius:50%; box-shadow: 0 15px 35px rgba(201,162,39,0.45);">
-        <div style="background:#000; border-radius:50%; padding:6px;">
-""", unsafe_allow_html=True)
-
-# --- YEHI LINE THI JISME ERROR THA - AB IMPORT OS UPAR HAI TO ERROR NAHI AAYEGA ---
-if os.path.exists("logo.png"):
-    st.image("logo.png", width=210)
-else:
-    st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/1200px-Starbucks_Corporation_Logo_2011.svg.png", width=210)
-
-st.markdown("""
-        </div>
+        <img src="{logo}" style="width:210px; height:210px; object-fit:cover; border-radius:50%; display:block; background:#000;">
     </div>
-    <div style="margin-top:14px;">
-        <span style="background:#FFF8E7; border:1px solid #C9A227; color:#8A6D00; padding:7px 20px; border-radius:30px; font-size:11px; font-weight:800; letter-spacing:2px;">★ STARBUCKS ★</span>
-    </div>
-    <h1 style="font-size:50px; font-weight:900; margin:14px 0 0 0; line-height:1; font-family:'Playfair Display', serif;">Starbucks <span style="color:#007042; font-style:italic;">x NutriSip</span></h1>
-    <div style="width:70px; height:3px; background:#C9A227; margin:14px auto; border-radius:10px;"></div>
-    <p style="color:#777; font-size:13px; letter-spacing:1px; font-weight:600;">EST. 1971 • SEATTLE, USA • FOUNDED ON 30 MARCH 1971</p>
+    <h1 style="font-size:50px; font-weight:900; margin:16px 0 0 0; line-height:1;">Starbucks <span style="color:#007042; font-style:italic;">x NutriSip</span></h1>
+    <div style="width:70px; height:3px; background:#C9A227; margin:14px auto;"></div>
+    <p style="color:#777; font-size:13px; letter-spacing:1px; font-weight:600;">EST. 1971 • SEATTLE, USA • 30 MARCH 1971</p>
 </div>
 """, unsafe_allow_html=True)
 
-# ========== 2. DETAIL ==========
+# ========== 2. INTRODUCTION ==========
 st.markdown("""
 <div class="info-card" style="text-align:center; margin-top:18px;">
-    <h3 style="margin:0; color:#007042;">About Starbucks</h3>
+    <h3 style="margin:0; color:#007042;">Introduction - Starbucks</h3>
     <p style="color:#555; font-size:14px; line-height:1.8; max-width:780px; margin:12px auto 0 auto;">
-        <b>Starbucks Corporation</b> 30 March 1971 ko Seattle, Washington, USA mein bani thi. Aaj 35,000+ stores ke saath 80+ countries mein duniya ki sab se bari coffeehouse chain hai.<br>
-        <b>NutriSip</b> iska AI version hai jo batata hai ke aapki drink <b>High Calorie hai ya Low Calorie.</b> 94.2% Accuracy ke saath.
+        <b>Starbucks Corporation</b> 30 March 1971 ko Seattle, Washington, USA mein bani. Shuru mein sirf coffee beans bechti thi, aaj 35,000+ stores ke saath 80+ countries mein duniya ki sab se bari coffeehouse chain hai.<br>
+        <b>NutriSip</b> iska AI version hai. Aap koi bhi drink select karo, uska <b>Fat, Carbs, Protein, Calories</b> dekho aur AI batayega <b>High Calorie hai ya Low Calorie.</b>
     </p>
+    <div style="display:flex; justify-content:center; gap:10px; margin-top:16px; flex-wrap:wrap;">
+        <span style="background:#F0FFF4; border:1px solid #C7E8D5; padding:7px 14px; border-radius:20px; font-size:11px; font-weight:700;">☕ FOUNDED: 30 MARCH 1971</span>
+        <span style="background:#F0FFF4; border:1px solid #C7E8D5; padding:7px 14px; border-radius:20px; font-size:11px; font-weight:700;">🌍 80+ COUNTRIES</span>
+        <span style="background:#F0FFF4; border:1px solid #C7E8D5; padding:7px 14px; border-radius:20px; font-size:11px; font-weight:700;">🤖 AI 94.2% ACCURACY</span>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ========== 3. MENU ==========
+# ========== 3. VIEW MENU ==========
 st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
 st.markdown("<h2 style='font-size:28px; text-align:center;'>📋 Our Menu</h2>", unsafe_allow_html=True)
-if st.button("☰ VIEW MENU - Click To Open Full Menu", use_container_width=True):
+if st.button("☰ VIEW MENU", use_container_width=True):
     st.session_state.menu_open = not st.session_state.menu_open
 
 menu = [
@@ -116,11 +113,12 @@ if st.session_state.menu_open:
                 st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ========== 4. FATS, CARBS, CALORIES ==========
+# ========== 4. SARA PROCEDURE ==========
 st.markdown(f"<h2 style='margin-top:22px;'>Selected: <span style='color:#007042; font-style:italic;'>{st.session_state.selected}</span></h2>", unsafe_allow_html=True)
 c1, c2 = st.columns([1, 1.1], gap="large")
 with c1:
     st.markdown("<div class='info-card'>", unsafe_allow_html=True)
+    st.markdown("<h3 style='margin:0 0 12px 0;'>Adjust Your Drink</h3>", unsafe_allow_html=True)
     fat = st.slider("Fat (g)", 0.0, 30.0, key="fat")
     carb = st.slider("Carbohydrates (g)", 0.0, 100.0, key="carb")
     protein = st.slider("Protein (g)", 0.0, 30.0, key="protein")
@@ -129,24 +127,26 @@ with c1:
     st.markdown("</div>", unsafe_allow_html=True)
 with c2:
     st.markdown("<div class='nutri-box'>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:white; margin:0 0 14px 0;'>Nutrition - Fats, Carbs, Calories</h3>", unsafe_allow_html=True)
     n1, n2, n3, n4 = st.columns(4)
     with n1: st.markdown(f"<div class='nutri-item'><b>{cal}</b><span>CALORIES</span></div>", unsafe_allow_html=True)
     with n2: st.markdown(f"<div class='nutri-item'><b>{fat}g</b><span>FATS</span></div>", unsafe_allow_html=True)
     with n3: st.markdown(f"<div class='nutri-item'><b>{carb}g</b><span>CARBS</span></div>", unsafe_allow_html=True)
     with n4: st.markdown(f"<div class='nutri-item'><b>{protein}g</b><span>PROTEIN</span></div>", unsafe_allow_html=True)
     st.markdown("<div style='height:14px;'></div>", unsafe_allow_html=True)
-    if model and st.button("✨ Predict - High or Low?", use_container_width=True):
+    if model and st.button("✨ Predict - High or Low Calorie?", use_container_width=True):
         dfp = pd.DataFrame([[fat, carb, protein]], columns=['Fat (g)', 'Carb. (g)', 'Protein'])
         pred = model.predict(dfp)[0]
         st.error(f"🔴 HIGH Calorie - {cal} kcal") if pred==1 else st.success(f"🟢 LOW Calorie - {cal} kcal")
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ========== 5. DEVELOPED BY ==========
+# ========== 5. DEVELOPED BY / DEPLOY ==========
 st.markdown("""
 <div style="background:#111; color:white; padding:34px 20px; border-radius:20px; margin-top:32px; text-align:center;">
-    <div style="font-size:10px; letter-spacing:4px; color:#C9A227; font-weight:800;">DEVELOPED BY</div>
+    <div style="font-size:10px; letter-spacing:4px; color:#C9A227; font-weight:800;">DEVELOPED & DEPLOYED BY</div>
     <div style="font-family:'Playfair Display', serif; font-size:38px; font-weight:900; margin-top:10px;">Noor Ul Hassan Awan</div>
     <div style="width:60px; height:3px; background:#C9A227; margin:14px auto;"></div>
     <div style="font-size:13px; color:#BBB;">Lahore, Pakistan 🇵🇰 • Starbucks x NutriSip • 2026</div>
+    <div style="font-size:11px; color:#777; margin-top:8px;">Semester Project • Decision Tree • 94.2% Accuracy • Streamlit</div>
 </div>
 """, unsafe_allow_html=True)
