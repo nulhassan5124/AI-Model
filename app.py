@@ -51,10 +51,10 @@ def load_model():
         return None
 model = load_model()
 
-# 1. BLACK CIRCLE - ANDAR STARBUCKS + LOGO PIC
+# 1. GOLD CIRCLE MEIN BARA SA STARBUCKS
 st.markdown(f"""
 <div style="text-align:center; margin-top:15px;">
-    <img src="{logo}" style="width:230px; height:230px; object-fit:cover; border-radius:50%; display:block; margin:0 auto; box-shadow: 0 15px 35px rgba(0,0,0,0.3);">
+    <img src="{logo}" style="width:230px; height:230px; object-fit:cover; border-radius:50%; display:block; margin:0 auto;">
     <h1 style="font-size:50px; font-weight:900; margin:16px 0 0 0; line-height:1;">Starbucks <span style="color:#007042; font-style:italic;">x NutriSip</span></h1>
     <div style="width:70px; height:3px; background:#C9A227; margin:14px auto;"></div>
     <p style="color:#777; font-size:13px; letter-spacing:1px; font-weight:600;">EST. 1971 • SEATTLE, USA • 30 MARCH 1971</p>
@@ -135,7 +135,7 @@ with c2:
         st.error(f"🔴 HIGH Calorie - {cal} kcal") if pred==1 else st.success(f"🟢 LOW Calorie - {cal} kcal")
     st.markdown("</div>", unsafe_allow_html=True)
 
-# 5. DEPLOY NAME
+# 5. DEVELOPED BY
 st.markdown("""
 <div style="background:#111; color:white; padding:34px 20px; border-radius:20px; margin-top:32px; text-align:center;">
     <div style="font-size:10px; letter-spacing:4px; color:#C9A227; font-weight:800;">DEVELOPED & DEPLOYED BY</div>
