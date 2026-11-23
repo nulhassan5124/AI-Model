@@ -4,6 +4,254 @@ import joblib
 from datetime import datetime
 import plotly.graph_objects as go
 
+# ================= V5 BLACK & WHITE LUXURY =================
+st.set_page_config(
+    page_title="Starbucks Calorie Predictor — Black Edition",
+    page_icon="☕",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+    .stApp { background-color: #FFFFFF; }
+    section[data-testid="stSidebar"] { background-color: #000000 !important; }
+    section[data-testid="stSidebar"] * { color: #FFFFFF !important; }
+    section[data-testid="stSidebar"] button { background-color: #1A1A1A !important; color: white !important; border: 1px solid #333 !important; }
+    section[data-testid="stSidebar"] button:hover { background-color: #FFFFFF !important; color: #000000 !important; }
+
+    /* HERO BLACK */
+    .hero-bw {
+        background: #000000;
+        padding: 50px 50px;
+        border-radius: 0px;
+        color: white;
+        border-bottom: 5px solid #000;
+    }
+    .hero-bw h1 { color: white; font-size: 52px; font-weight: 900; margin: 0; line-height: 1.0; letter-spacing: -1.5px; text-transform: uppercase; }
+    .hero-bw p { color: #B0B0B0; font-size: 15px; margin-top: 14px; max-width: 600px; line-height: 1.6; }
+    .hero-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .hero-badge { border: 1px solid white; padding: 6px 14px; font-size: 11px; letter-spacing: 2px; font-weight: 700; }
+    .hero-num { font-size: 11px; letter-spacing: 2px; color: #B0B0B0; }
+
+    /* CARDS B&W */
+    .card-bw {
+        background: #FFFFFF;
+        padding: 34px;
+        border: 1.5px solid #000000;
+        border-radius: 0px;
+        height: 100%;
+    }
+    .card-bw:hover { box-shadow: 8px 8px 0px #000000; transition: 0.2s; }
+    .card-title { font-size: 13px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #000; margin-bottom: 5px; }
+    .card-sub { font-size: 13px; color: #777; margin-bottom: 22px; }
+
+    /* METRIC B&W */
+    .metric-bw { border: 1.5px solid #000; padding: 16px; background: #FFF; }
+    .metric-bw b { font-size: 10px; letter-spacing: 2px; color: #777; }
+    .metric-bw span { font-size: 28px; font-weight: 900; color: #000; display: block; margin-top: 2px; }
+
+    /* BUTTONS */
+    .stButton > button { background-color: #000000 !important; color: #FFFFFF !important; border-radius: 0px !important; border: 1.5px solid #000 !important; font-weight: 800 !important; letter-spacing: 1px !important; text-transform: uppercase !important; padding: 12px !important; }
+    .stButton > button:hover { background-color: #FFFFFF !important; color: #000000 !important; }
+
+    /* SLIDERS B&W */
+    .stSlider > div > div > div > div { background-color: #000000 !important; }
+
+    .footer-bw { text-align: center; color: #999; font-size: 11px; letter-spacing: 1.5px; margin-top: 60px; padding-top: 20px; border-top: 1.5px solid #000; text-transform: uppercase; }
+    .divider-bw { border-top: 1.5px solid #000; margin: 20px 0; }
+</style>
+""", unsafe_allow_html=True)
+
+# ================= MODEL =================
+@st.cache_resource
+def load_model():
+    return joblib.load('starbucks_decision_tree_model.joblib')
+
+try:
+    model = load_model()
+    model_loaded = True
+except:
+    model_loaded = False
+
+# ================= GAUGE B&W =================
+def gauge_bw(conf, label):
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=conf,
+        domain={'x': [0, 1], 'y': [0, 1]},
+        title={'text': label.upper(), 'font': {'size': 14, 'color': '#000', 'family': 'Inter'}},
+        gauge={
+            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "#000"},
+            'bar': {'color': "#000000", 'thickness': 0.25},
+            'bgcolor': "white",
+            'borderwidth': 1.5,
+            'bordercolor': "#000000",
+            'steps': [{'range': [0, 50], 'color': '#F2F2F2'}, {'range': [50, 100], 'color': '#E5E5E5'}],
+            'threshold': {'line': {'color': "#000", 'width': 4}, 'thickness': 0.8, 'value': conf}
+        }
+    ))
+    fig.update_layout(height=230, margin=dict(l=20,r=20,t=40,b=20), paper_bgcolor="white", font={'family': "Inter"})
+    return fig
+
+# ================= SIDEBAR BLACK =================
+with st.sidebar:
+    st.markdown("# ☕ STARBUCKS")
+    st.markdown("**CALORIE PREDICTOR**")
+    st.markdown("`BLACK EDITION • V5.0`")
+    st.markdown("---")
+    st.markdown("### PRESETS — REAL MENU")
+    if st.button("01  BLACK COFFEE — 5 KCAL", use_container_width=True):
+        st.session_state.fat, st.session_state.carb, st.session_state.protein = 0.1, 0.0, 0.3
+    if st.button("02  CAFFE LATTE — 190 KCAL", use_container_width=True):
+        st.session_state.fat, st.session_state.carb, st.session_state.protein = 7.0, 15.0, 12.0
+    if st.button("03  CARAMEL FRAPPUCCINO — 370 KCAL", use_container_width=True):
+        st.session_state.fat, st.session_state.carb, st.session_state.protein = 15.0, 54.0, 5.0
+    if st.button("04  STRAWBERRY AÇAI — 90 KCAL", use_container_width=True):
+        st.session_state.fat, st.session_state.carb, st.session_state.protein = 0.1, 22.0, 0.0
+    st.markdown("---")
+    st.markdown("**MODEL**")
+    st.caption("Decision Tree Classifier")
+    st.caption("Accuracy: 94.2% • Features: 3")
+    st.caption("Dataset: Starbucks USA Menu")
+    st.markdown("---")
+    st.caption("NULHASSAN — LAHORE, PK")
+    st.caption("© 2026 • BLACK EDITION")
+
+# ================= HERO BLACK =================
+st.markdown("""
+<div class="hero-bw">
+    <div class="hero-top">
+        <div class="hero-badge">● AI NUTRITION LAB — PRO</div>
+        <div class="hero-num">EST. 2026 / LAHORE — PK</div>
+    </div>
+    <h1>Know Your Drink.<br>Before You Sip It.</h1>
+    <p>Minimal. Precise. Honest. Our Black Edition AI reads Fat, Carbs & Protein and tells you in 1 second if your drink is High Calorie (>150 kcal) or not. No colors. No distraction. Just truth.</p>
+</div>
+""", unsafe_allow_html=True)
+st.write("")
+st.write("")
+
+# ================= DASHBOARD B&W =================
+c1, c2 = st.columns([1, 1.35], gap="large")
+
+with c1:
+    st.markdown('<div class="card-bw">', unsafe_allow_html=True)
+    st.markdown('<div class="card-title">01 — Drink Composition</div>', unsafe_allow_html=True)
+    st.markdown('<div class="card-sub">Enter values from nutrition label. Black Edition will do the rest.</div>', unsafe_allow_html=True)
+    
+    fat = st.slider("FAT — (g)", 0.0, 30.0, st.session_state.get('fat', 2.0), 0.5)
+    carb = st.slider("CARBS — (g)", 0.0, 100.0, st.session_state.get('carb', 25.0), 1.0)
+    protein = st.slider("PROTEIN — (g)", 0.0, 30.0, st.session_state.get('protein', 4.0), 0.5)
+    
+    est_cal = int(fat*9 + carb*4 + protein*4)
+    st.markdown('<div class="divider-bw"></div>', unsafe_allow_html=True)
+    
+    m1, m2 = st.columns(2)
+    with m1:
+        st.markdown(f"<div class='metric-bw'><b>EST. CALORIES</b><span>{est_cal} KCAL</span></div>", unsafe_allow_html=True)
+    with m2:
+        st.markdown(f"<div class='metric-bw'><b>DAILY VALUE</b><span>{est_cal/2000*100:.1f}%</span></div>", unsafe_allow_html=True)
+    
+    st.write("")
+    total = fat+carb+protein if (fat+carb+protein)>0 else 1
+    st.write(f"**MACRO SPLIT:** FAT {fat/total*100:.0f}%  /  CARBS {carb/total*100:.0f}%  /  PROTEIN {protein/total*100:.0f}%")
+    st.progress(int((fat+carb+protein)/160*100))
+    st.caption(f"TOTAL MACROS: {fat+carb+protein:.1f}g  |  FORMULA: F*9 + C*4 + P*4")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with c2:
+    st.markdown('<div class="card-bw">', unsafe_allow_html=True)
+    st.markdown('<div class="card-title">02 — AI Intelligence Report</div>', unsafe_allow_html=True)
+    
+    if not model_loaded:
+        st.error("Model file missing.")
+    else:
+        if st.button("ANALYZE DRINK → GET PRO REPORT", use_container_width=True):
+            df = pd.DataFrame([[fat, carb, protein]], columns=['Fat (g)', 'Carb. (g)', 'Protein'])
+            pred = model.predict(df)[0]
+            prob = model.predict_proba(df)[0]
+            
+            if pred == 1:
+                label = "High Calorie"
+                conf = prob[1]*100
+                health = max(15, 100 - int(est_cal/2.2))
+                st.markdown(f"""
+                <div style="background:#000; color:white; padding:24px; border:1.5px solid #000;">
+                    <span style="border:1px solid white; padding:4px 10px; font-size:10px; letter-spacing:2px;">⚠ HIGH CALORIE ALERT</span>
+                    <h2 style="color:white; margin:12px 0 0 0; font-size:28px; font-weight:900;">{est_cal} KCAL — {label.upper()}</h2>
+                    <p style="color:#B0B0B0; font-size:13px; margin:6px 0 0 0;">Exceeds 150 kcal limit. Recommended for occasional consumption only.</p>
+                </div>
+                """, unsafe_allow_html=True)
+                tip = f"<div style='border:1.5px solid #000; padding:14px; font-size:13px;'><b>SMART SWAP:</b> Non-fat milk + Sugar-free Vanilla + No Whip. Saves ~{int(est_cal*0.4)} kcal. Ask barista for 'LIGHT' version.</div>"
+            else:
+                label = "Low / Med Calorie"
+                conf = prob[0]*100
+                health = min(96, 100 - int(est_cal/5))
+                st.markdown(f"""
+                <div style="background:#FFF; color:#000; padding:24px; border:1.5px solid #000;">
+                    <span style="background:#000; color:white; padding:4px 10px; font-size:10px; letter-spacing:2px;">✓ HEALTHY CHOICE</span>
+                    <h2 style="color:#000; margin:12px 0 0 0; font-size:28px; font-weight:900;">{est_cal} KCAL — {label.upper()}</h2>
+                    <p style="color:#777; font-size:13px; margin:6px 0 0 0;">Perfect. Under your 150 kcal goal. Enjoy guilt-free.</p>
+                </div>
+                """, unsafe_allow_html=True)
+                tip = f"<div style='border:1.5px solid #000; padding:14px; font-size:13px;'><b>EXCELLENT:</b> Ye choice bilkul sahi hai. Aap apne daily goal ke andar hain. Keep it up.</div>"
+
+            st.write("")
+            col_a, col_b = st.columns([1.2, 1])
+            with col_a:
+                st.plotly_chart(gauge_bw(conf, label), use_container_width=True, config={'displayModeBar': False})
+            with col_b:
+                st.write("")
+                st.markdown(f"<div class='metric-bw'><b>HEALTH SCORE</b><span>{health} / 100</span></div>", unsafe_allow_html=True)
+                st.write("")
+                st.markdown(f"<div class='metric-bw'><b>CONFIDENCE</b><span>{conf:.1f}%</span></div>", unsafe_allow_html=True)
+                st.write("")
+                st.markdown(f"<div class='metric-bw'><b>CATEGORY</b><span style='font-size:15px;'>{label}</span></div>", unsafe_allow_html=True)
+            
+            st.write("")
+            st.markdown(tip, unsafe_allow_html=True)
+            
+            report = f"""STARBUCKS - BLACK EDITION REPORT
+Generated: {datetime.now().strftime('%d %B %Y, %I:%M %p')}
+
+Fat: {fat}g | Carbs: {carb}g | Protein: {protein}g
+Estimated Calories: {est_cal} kcal
+AI Prediction: {label} | Confidence: {conf:.1f}%
+Health Score: {health}/100
+Model: Decision Tree
+
+Developed by NulHassan | Lahore, Pakistan
+"""
+            st.write("")
+            st.download_button("DOWNLOAD OFFICIAL REPORT ↓", report, file_name=f"Starbucks_Black_Report_{datetime.now().strftime('%Y%m%d')}.txt", use_container_width=True)
+            
+        else:
+            st.markdown("""
+            <div style="border:1.5px dashed #000; padding:50px; text-align:center; background:#FAFAFA;">
+                <div style="font-size:50px;">☕</div>
+                <div style="font-weight:900; font-size:18px; letter-spacing:1px;">READY TO ANALYZE</div>
+                <div style="font-size:13px; color:#777; margin-top:8px;">Left se macros set karen ya sidebar se preset select karen.<br>Phir <b>ANALYZE</b> dabayen. 1 second me report milegi.</div>
+            </div>
+            """, unsafe_allow_html=True)
+            st.write("")
+            st.markdown("""
+            **WHY BLACK EDITION?**
+            - **Luxury Minimal:** Sirf Black & White. No distraction.
+            - **Agency Look:** Dribbble / Awwwards award-winning style.
+            - **Gauge Meter:** Real-time confidence.
+            - **Smart Swaps:** AI khud calories kam karne ka tarika batayega.
+            """)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown("<div class='footer-bw'>© 2026 — STARBUCKS AI LAB • BLACK EDITION • CRAFTED BY NULHASSAN • LAHORE, PAKISTAN • NOT AFFILIATED WITH STARBUCKS CORP.</div>", unsafe_allow_html=True)import streamlit as st
+import pandas as pd
+import joblib
+from datetime import datetime
+import plotly.graph_objects as go
+
 # ================= V4 ULTRA PRO CONFIG =================
 st.set_page_config(
     page_title="Starbucks Calorie Predictor Pro | AI Nutrition Lab",
