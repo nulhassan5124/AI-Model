@@ -2,10 +2,11 @@ import streamlit as st
 import pandas as pd
 import joblib
 import os
+import base64
 
-st.set_page_config(page_title="Starbucks x NutriSip", page_icon="☕", layout="wide")
+st.set_page_config(page_title="Starbucks x NutriSip - Noor Ul Hassan Awan", page_icon="☕", layout="wide")
 
-# --- STATE ---
+# ---------- STATE ----------
 if "selected" not in st.session_state:
     st.session_state.selected = "Caffe Latte"
 if "fat" not in st.session_state:
@@ -15,7 +16,7 @@ if "carb" not in st.session_state:
 if "protein" not in st.session_state:
     st.session_state.protein = 12.0
 if "menu_open" not in st.session_state:
-    st.session_state.menu_open = False
+    st.session_state.menu_open = True
 
 def select(name, f, c, p):
     st.session_state.selected = name
@@ -23,36 +24,35 @@ def select(name, f, c, p):
     st.session_state.carb = c
     st.session_state.protein = p
 
-# --- STYLISH DESIGN - CLEAN ---
+def get_logo_html():
+    # Agar logo.png hai to wahi use karo, warna official Starbucks logo
+    if os.path.exists("logo.png"):
+        with open("logo.png", "rb") as f:
+            data = base64.b64encode(f.read()).decode()
+        return f'<img src="data:image/png;base64,{data}" style="width:235px; height:235px; object-fit:cover; border-radius:50%; border:7px solid #E8DCC6; box-shadow:0 0 0 7px #FFF8E7, 0 20px 40px rgba(0,0,0,0.20);">'
+    else:
+        # Default Starbucks Logo - Internet se
+        return '<img src="https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/1200px-Starbucks_Corporation_Logo_2011.svg.png" style="width:235px; height:235px; object-fit:cover; border-radius:50%; border:7px solid #E8DCC6; background:white; box-shadow:0 0 0 7px #FFF8E7, 0 20px 40px rgba(0,0,0,0.20);">'
+
+# ---------- DESIGN - COMPLETE ----------
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Poppins:wght@300;400;500;600;700;800&display=swap');
 .stApp { background: #FFFEFA; }
-.block-container { max-width: 1000px; padding-top: 0.8rem; padding-bottom: 2rem; }
+.block-container { max-width: 1050px; padding-top: 0.8rem; padding-bottom: 2rem; }
 * { font-family: 'Poppins', sans-serif !important; }
-h1,h2,h3 { font-family: 'Playfair Display', serif !important; letter-spacing: -0.5px; }
-
-/* LOGO - PERFECT CIRCLE */
-.logo-box { display:flex; justify-content:center; margin-top:10px; }
-.logo-box img { width: 230px !important; height: 230px !important; object-fit: cover !important; border-radius: 50% !important; border: 7px solid #E8DCC6 !important; box-shadow: 0 0 0 7px #FFF8E7, 0 20px 40px rgba(0,0,0,0.18) !important; }
-
-/* TITLE - STYLISH */
-.hero-title { text-align:center; font-family:'Playfair Display', serif; font-size:54px; font-weight:900; line-height:1.0; color:#1A1A1A; margin:18px 0 0 0; }
+h1,h2,h3 { font-family: 'Playfair Display', serif !important; }
+.hero-title { text-align:center; font-family:'Playfair Display', serif; font-size:56px; font-weight:900; line-height:1.0; color:#1A1A1A; margin:18px 0 0 0; }
 .hero-title span { color:#007042; font-style:italic; }
-.hero-sub { text-align:center; color:#777; font-size:14px; letter-spacing:0.5px; margin-top:10px; }
 .gold-line { width:70px; height:3px; background:#C9A227; margin:16px auto; border-radius:10px; }
-
-/* INFO CARDS */
 .info-card { background:#FFFFFF; border:1px solid #F0EAD8; border-radius:18px; padding:22px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
 .nutri-box { background:#1E3A2F; color:white; border-radius:18px; padding:22px; }
 .nutri-item { background: rgba(255,255,255,0.08); border-radius:12px; padding:14px; text-align:center; }
 .nutri-item b { font-size:22px; display:block; }
 .nutri-item span { font-size:11px; color:#A8D5BC; letter-spacing:1px; }
-
-/* BUTTONS */
-.stButton > button { background:#007042 !important; color:white !important; border:none !important; border-radius:12px !important; padding:10px 18px !important; font-weight:700 !important; letter-spacing:0.3px !important; }
-.stButton > button:hover { background:#005A36 !important; transform: translateY(-1px); }
+.stButton > button { background:#007042 !important; color:white !important; border:none !important; border-radius:12px !important; font-weight:700 !important; }
 .menu-btn button { background:#1A1A1A !important; font-size:16px !important; padding:14px !important; border-radius:14px !important; }
+div[data-testid="stExpander"] { background:white; border-radius:14px; border:1px solid #EEE; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -62,37 +62,55 @@ def load_model():
     except: return None
 model = load_model()
 
-# ============ 1. LOGO - TOP ============
-st.markdown('<div class="logo-box">', unsafe_allow_html=True)
-if os.path.exists("logo.png"):
-    st.image("logo.png")
-else:
-    st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/1200px-Starbucks_Corporation_Logo_2011.svg.png")
-st.markdown('</div>', unsafe_allow_html=True)
+# ========== 1. LOGO - TOP - ADDED ==========
+st.markdown(f'<div style="display:flex; justify-content:center; margin-top:10px;">{get_logo_html()}</div>', unsafe_allow_html=True)
 
-# ============ 2. NAME + DETAIL - STYLISH WRITING ============
+# ========== 2. NAME + DETAIL ==========
 st.markdown("""
 <div style="text-align:center;">
-    <div style="display:inline-block; background:#FFF8E7; border:1px solid #E8DCC6; color:#8A6D00; padding:6px 16px; border-radius:30px; font-size:10px; font-weight:800; letter-spacing:3px; margin-top:18px;">★ EST. 1971 • SEATTLE • PREMIUM COFFEE ★</div>
+    <div style="display:inline-block; background:#FFF8E7; border:1px solid #E8DCC6; color:#8A6D00; padding:7px 18px; border-radius:30px; font-size:10px; font-weight:800; letter-spacing:3px; margin-top:20px;">★ EST. 1971 • SEATTLE • PREMIUM COFFEE ★</div>
     <h1 class="hero-title">Starbucks <span>x NutriSip</span></h1>
     <div class="gold-line"></div>
-    <p class="hero-sub">Know What You Drink — Har sip se pehle, uski poori kahani jaano.</p>
-    <p style="color:#555; font-size:14px; line-height:1.8; max-width:720px; margin:14px auto 0 auto;">
+    <p style="color:#777; font-size:14px;">Know What You Drink — Har sip se pehle, uski poori kahani jaano.</p>
+    <p style="color:#555; font-size:14px; line-height:1.8; max-width:750px; margin:14px auto 0 auto;">
         <b>Starbucks</b> 30 March 1971 ko Seattle, USA mein bani. Aaj 80+ countries, 35,000+ stores ke saath duniya ki No.1 coffee brand hai.<br>
         <b>NutriSip</b> iska AI partner hai — jo batata hai ke aapki coffee <b>High Calorie hai ya Low Calorie.</b> 94.2% Accuracy ke saath.
     </p>
+    <div style="display:flex; justify-content:center; gap:12px; margin-top:16px; flex-wrap:wrap;">
+        <span style="background:white; border:1px solid #E8DCC6; padding:7px 14px; border-radius:20px; font-size:11px; font-weight:700;">☕ FOUNDED: 1971</span>
+        <span style="background:white; border:1px solid #E8DCC6; padding:7px 14px; border-radius:20px; font-size:11px; font-weight:700;">🌍 80+ COUNTRIES</span>
+        <span style="background:white; border:1px solid #E8DCC6; padding:7px 14px; border-radius:20px; font-size:11px; font-weight:700;">🤖 AI POWERED 2026</span>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown("<div style='height:22px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:24px;'></div>", unsafe_allow_html=True)
 
-# ============ 3. MENU BUTTON - CLICK KARO TO SARA MENU KHUL JAYE ============
-st.markdown("<div class='menu-btn'>", unsafe_allow_html=True)
-if st.button("☰  VIEW FULL MENU  •  Click Here To Open", use_container_width=True):
-    st.session_state.menu_open = not st.session_state.menu_open
-st.markdown("</div>", unsafe_allow_html=True)
+# ========== 3. MENU + PRODUCTS - 2 SIDE ==========
+left, right = st.columns(2, gap="large")
+with left:
+    st.markdown("<div class='info-card'>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:24px; color:#007042; margin:0;'>📋 STARBUCKS MENU</h2><p style='font-size:12px; color:#888;'>Click karo, poora menu khul jayega</p>", unsafe_allow_html=True)
+    if st.button("☰ VIEW FULL MENU", key="menu_btn", use_container_width=True):
+        st.session_state.menu_open = not st.session_state.menu_open
+    if st.session_state.menu_open:
+        st.markdown("<p style='font-size:12px; color:#007042; font-weight:700;'>✓ Menu Open Hai - Neeche se Drink Select Karo</p>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-# FULL MENU DATA - FATS, CAL, CARBS, PROTEIN
+with right:
+    st.markdown("<div class='info-card'>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:24px; margin:0;'>☕ PRODUCTS</h2><p style='font-size:12px; color:#888;'>Category pe click karo, folder khul jayega</p>", unsafe_allow_html=True)
+    with st.expander("🔥 HOT COFFEE - 5 Products"):
+        st.write("Black Coffee (5 kcal), Latte (190), Cappuccino (140), Macchiato (250), White Mocha (400)")
+    with st.expander("❄️ COLD COFFEE - 5 Products"):
+        st.write("Iced Americano (10), Cold Coffee (120), Iced Latte (130), Cold Brew (15), Caramel Latte (220)")
+    with st.expander("🥤 FRAPPUCCINO - 4 Products"):
+        st.write("Mocha (370), Caramel (380), Vanilla (350), Java Chip (420)")
+    with st.expander("🍵 TEA & REFRESHERS"):
+        st.write("Green Tea (0), Matcha Latte (200), Pink Drink (140), Mango (100)")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# ========== 4. FULL MENU TABLE - JAB MENU OPEN HO ==========
 menu = [
     ["Black Coffee", "Hot Coffee", 5, 0.1, 0.0, 0.3],
     ["Caffe Latte", "Hot Coffee", 190, 7.0, 15.0, 12.0],
@@ -109,39 +127,35 @@ menu = [
 ]
 
 if st.session_state.menu_open:
-    st.markdown("<div class='info-card' style='margin-top:14px;'>", unsafe_allow_html=True)
-    st.markdown("<h3 style='margin:0 0 12px 0;'>📋 Full Starbucks Menu — Sab Kuch Detail Ke Saath</h3>")
-    df = pd.DataFrame(menu, columns=["Drink", "Category", "Calories", "Fat (g)", "Carbs (g)", "Protein (g)"])
+    st.markdown("<div class='info-card' style='margin-top:18px;'>", unsafe_allow_html=True)
+    st.markdown("<h3 style='margin:0 0 12px 0;'>📋 Full Menu — Calories, Fats, Carbs, Protein Sab Kuch</h3>", unsafe_allow_html=True)
+    df = pd.DataFrame(menu, columns=["Drink", "Category", "Calories (kcal)", "Fat (g)", "Carbs (g)", "Protein (g)"])
     st.dataframe(df, use_container_width=True, hide_index=True)
-    st.markdown("<p style='font-size:12px; color:#888; margin-top:8px;'>Neeche kisi bhi drink pe click karo, uski full detail neeche khul jayegi.</p>")
     cols = st.columns(3)
     for i, (name, cat, cal, f, c, p) in enumerate(menu):
         with cols[i % 3]:
-            if st.button(f"{name} • {cal} kcal", key=f"menu_{i}", use_container_width=True):
+            if st.button(f"{name} • {cal} kcal", key=f"m_{i}", use_container_width=True):
                 select(name, f, c, p)
                 st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
-else:
-    st.markdown("<p style='text-align:center; color:#999; font-size:12px; margin-top:8px;'>↑ Upar wale button pe click karo, poora menu yahan khul jayega ↑</p>", unsafe_allow_html=True)
 
-# ============ 4. SELECTED DRINK - FATS, CARBS SAB KUCH NEECHE ============
-st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
-st.markdown(f"<h2 style='font-size:28px;'>Selected Drink: <span style='color:#007042; font-style:italic;'>{st.session_state.selected}</span></h2>", unsafe_allow_html=True)
-
+# ========== 5. SELECTED DRINK - FATS CARBS SAB ==========
+st.markdown("<div style='height:22px;'></div>", unsafe_allow_html=True)
+st.markdown(f"<h2 style='font-size:30px;'>Selected: <span style='color:#007042; font-style:italic;'>{st.session_state.selected}</span></h2>", unsafe_allow_html=True)
 c1, c2 = st.columns([1, 1.1], gap="large")
 with c1:
     st.markdown("<div class='info-card'>", unsafe_allow_html=True)
-    st.markdown("<h3 style='margin:0 0 14px 0;'>Adjust Your Drink</h3>")
+    st.markdown("<h3 style='margin:0 0 14px 0;'>Adjust Your Drink</h3>", unsafe_allow_html=True)
     fat = st.slider("Fat (g)", 0.0, 30.0, key="fat")
     carb = st.slider("Carbohydrates (g)", 0.0, 100.0, key="carb")
     protein = st.slider("Protein (g)", 0.0, 30.0, key="protein")
     cal = int(fat*9 + carb*4 + protein*4)
-    st.markdown(f"<div style='background:#FFF8E7; padding:12px; border-radius:12px; text-align:center; margin-top:10px;'><b style='font-size:24px;'>{cal} kcal</b><br><span style='font-size:11px; color:#888;'>ESTIMATED CALORIES</span></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='background:#FFF8E7; padding:14px; border-radius:12px; text-align:center; margin-top:10px;'><b style='font-size:26px;'>{cal} kcal</b><br><span style='font-size:11px; color:#888;'>ESTIMATED CALORIES</span></div>", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
 with c2:
     st.markdown("<div class='nutri-box'>", unsafe_allow_html=True)
-    st.markdown("<h3 style='color:white; margin:0 0 14px 0;'>Full Nutrition Breakdown</h3>")
+    st.markdown("<h3 style='color:white; margin:0 0 14px 0;'>Full Nutrition Breakdown</h3>", unsafe_allow_html=True)
     n1, n2, n3, n4 = st.columns(4)
     with n1: st.markdown(f"<div class='nutri-item'><b>{cal}</b><span>CALORIES</span></div>", unsafe_allow_html=True)
     with n2: st.markdown(f"<div class='nutri-item'><b>{fat}g</b><span>FATS</span></div>", unsafe_allow_html=True)
@@ -155,10 +169,10 @@ with c2:
             if pred == 1: st.error(f"🔴 HIGH Calorie — {cal} kcal")
             else: st.success(f"🟢 LOW Calorie — {cal} kcal")
     else:
-        st.info(f"Demo Result: {'HIGH Calorie' if cal > 200 else 'LOW Calorie'} — {cal} kcal")
+        st.info(f"Demo: {'HIGH Calorie' if cal > 200 else 'LOW Calorie'} — {cal} kcal")
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ============ 5. LAST MEIN TUMHARA NAAM - DEPLOY NAME ============
+# ========== 6. LAST MEIN TUMHARA NAAM ==========
 st.markdown("""
 <div style="background:#111111; color:white; padding:34px 20px; border-radius:20px; margin-top:32px; text-align:center;">
     <div style="font-size:10px; letter-spacing:4px; color:#C9A227; font-weight:800;">CRAFTED • DESIGNED • DEPLOYED BY</div>
