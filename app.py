@@ -3,14 +3,18 @@ import pandas as pd
 import joblib
 from datetime import datetime
 
-# ---------- 1. SETUP ----------
 st.set_page_config(page_title="NutriSip | Deployed by Noor Ul Hassan Awan", page_icon="☕", layout="wide", initial_sidebar_state="expanded")
 
+# ---------- FIXED - HAR KEY ALAG SE CHECK HOGI, AB KEYERROR NAHI AAYEGA ----------
 if "fat" not in st.session_state:
     st.session_state.fat = 2.0
+if "carb" not in st.session_state:
     st.session_state.carb = 15.0
+if "protein" not in st.session_state:
     st.session_state.protein = 8.0
+if "selected_drink" not in st.session_state:
     st.session_state.selected_drink = "Cold Coffee"
+if "history" not in st.session_state:
     st.session_state.history = []
 
 def set_drink(name, f, c, p):
@@ -19,50 +23,38 @@ def set_drink(name, f, c, p):
     st.session_state.protein = p
     st.session_state.selected_drink = name
 
-# ---------- 2. INTERNATIONAL CSS - USA / DUBAI STYLE ----------
+# ---------- CSS ----------
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
     * { font-family: 'Inter', sans-serif; }
     .stApp { background: #FFFFFF; }
     .block-container { max-width: 1280px; padding-top: 0.5rem; }
-    
-    /* SIDEBAR - DARK INTERNATIONAL */
     section[data-testid="stSidebar"] { background: #0A0A0A !important; }
     section[data-testid="stSidebar"] * { color: white !important; }
     section[data-testid="stSidebar"] .stButton > button { background: #1A1A1A !important; border: 1px solid #333 !important; color: white !important; height: 42px !important; font-size: 13px !important; border-radius: 10px !important; }
     section[data-testid="stSidebar"] .stButton > button:hover { background: white !important; color: black !important; }
-    
-    /* TOP BAR */
     .topbar { display:flex; justify-content:space-between; align-items:center; padding: 14px 0; border-bottom: 1px solid #EEE; }
     .logo-row { display:flex; align-items:center; gap:12px; }
     .logo-c { width:44px; height:44px; background:#000; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:900; }
     .nav { display:flex; gap:24px; font-size:13px; font-weight:600; color:#666; }
     .nav b { color:#000; }
-    .deploy-badge { background:#000; color:white; padding:7px 14px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:0.5px; }
-    
-    /* HERO - INTERNATIONAL MINIMAL */
+    .deploy-badge { background:#000; color:white; padding:7px 14px; border-radius:20px; font-size:11px; font-weight:700; }
     .hero-int { padding: 36px 0 10px 0; display:flex; justify-content:space-between; align-items:flex-start; }
     .hero-int h1 { font-size: 58px; font-weight: 900; line-height: 0.95; letter-spacing: -2px; color:#000; margin:0; }
     .hero-int p { color:#666; font-size:15px; line-height:1.65; max-width:600px; margin-top:14px; }
     .hero-right { background:#F7F7F7; border-radius:20px; padding:20px; min-width:260px; text-align:center; border:1px solid #EEE; }
-    
     .card { background:white; border:1px solid #EEE; border-radius:18px; padding:24px; box-shadow: 0 2px 14px rgba(0,0,0,0.03); }
     .menu-cat { font-size:11px; letter-spacing:2px; font-weight:800; color:#999; margin:18px 0 10px 0; }
-    .drink-item { background:white; border:1px solid #EEE; border-radius:14px; padding:14px; display:flex; justify-content:space-between; align-items:center; }
-    .drink-item:hover { border:1.5px solid #000; }
     .kpi { background:#F7F7F7; border:1px solid #EEE; border-radius:12px; padding:14px; }
-    .kpi b { font-size:11px; color:#888; letter-spacing:0.5px; }
+    .kpi b { font-size:11px; color:#888; }
     .kpi span { font-size:24px; font-weight:900; display:block; }
-    
     .stButton > button { background:#000 !important; color:white !important; border-radius:12px !important; border:none !important; font-weight:700 !important; height:50px !important; font-size:14px !important; }
-    .stButton > button:hover { background:#333 !important; }
     .stSlider > div > div > div > div { background:#000 !important; }
     .stMetric { background:#F7F7F7; padding:12px; border-radius:12px; border:1px solid #EEE; }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- MODEL ----------
 @st.cache_resource
 def load_model():
     return joblib.load('starbucks_decision_tree_model.joblib')
@@ -72,7 +64,7 @@ try:
 except:
     model_ok = False
 
-# ---------- SIDEBAR - DEPLOY INFO ----------
+# ---------- SIDEBAR ----------
 with st.sidebar:
     st.markdown("""
     <div style="text-align:center; padding:10px 0;">
@@ -83,21 +75,12 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     st.divider()
     st.markdown("### 🌍 Menu Categories")
-    st.markdown("""
-    - ☕ Hot Coffee (5)
-    - 🧊 Cold Coffee (5)
-    - 🍫 Frappuccino (4)
-    - 🍵 Tea & Matcha (4)
-    - 🍓 Refreshers (4)
-    """)
+    st.markdown("- ☕ Hot Coffee (5)\n- 🧊 Cold Coffee (5)\n- 🍫 Frappuccino (4)\n- 🍵 Tea & Matcha (4)\n- 🍓 Refreshers (4)")
     st.divider()
     st.markdown("### 🤖 AI Model")
     st.markdown("""
     <div style="background:#1A1A1A; padding:14px; border-radius:12px; font-size:12px; line-height:1.8;">
-    Algorithm: Decision Tree<br>
-    Accuracy: 94.2%<br>
-    Data: Starbucks Global Menu<br>
-    Threshold: 150 kcal
+    Algorithm: Decision Tree<br>Accuracy: 94.2%<br>Data: Starbucks Global Menu<br>Threshold: 150 kcal
     </div>
     """, unsafe_allow_html=True)
     st.divider()
@@ -109,7 +92,6 @@ with st.sidebar:
     <span style="font-size:11px;">Semester Project • 2026</span>
     </div>
     """, unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; font-size:11px; color:#666; margin-top:15px;'>© 2026 NutriSip<br>Deployed by Noor Ul Hassan Awan</p>", unsafe_allow_html=True)
 
 # ---------- TOP BAR ----------
 st.markdown(f"""
@@ -118,7 +100,7 @@ st.markdown(f"""
         <div class="logo-c">N</div>
         <div><div style="font-size:19px; font-weight:900; line-height:1;">NutriSip <span style="font-weight:400; color:#999; font-size:13px;">International</span></div><div style="font-size:10px; letter-spacing:2px; color:#999; font-weight:700;">CALORIE INTELLIGENCE</div></div>
     </div>
-    <div class="nav"><span><b>Home</b></span><span>Menu</span><span>Insights</span><span>Report</span><span>Contact</span></div>
+    <div class="nav"><span><b>Home</b></span><span>Menu</span><span>Insights</span><span>Report</span></div>
     <div class="deploy-badge">DEPLOYED BY NOOR UL HASSAN AWAN</div>
 </div>
 """, unsafe_allow_html=True)
@@ -127,9 +109,9 @@ st.markdown(f"""
 st.markdown("""
 <div class="hero-int">
     <div>
-        <div style="display:inline-block; background:#F0F0F0; padding:6px 12px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:0.5px;">● INTERNATIONAL PROJECT • USA STYLE DESIGN • 2026</div>
+        <div style="display:inline-block; background:#F0F0F0; padding:6px 12px; border-radius:20px; font-size:11px; font-weight:700;">● INTERNATIONAL PROJECT • USA STYLE DESIGN • 2026</div>
         <h1 style="margin-top:16px;">Know What<br>You Drink.</h1>
-        <p>Built with Machine Learning on the global Starbucks menu. Enter Fat, Carbs & Protein — our AI instantly tells you if your drink is <b>High Calorie</b> or <b>Low Calorie</b>, with Health Score, Smart Swap & Professional Report. Designed for the world, built in Pakistan.</p>
+        <p>Built with Machine Learning on the global Starbucks menu. Enter Fat, Carbs & Protein — our AI instantly tells you if your drink is <b>High Calorie</b> or <b>Low Calorie</b>, with Health Score, Smart Swap & Professional Report.</p>
         <div style="display:flex; gap:10px; margin-top:16px;">
             <span style="background:#000; color:white; padding:8px 15px; border-radius:20px; font-size:12px; font-weight:700;">✓ 94.2% Accuracy</span>
             <span style="background:#F0F0F0; padding:8px 15px; border-radius:20px; font-size:12px; font-weight:600;">✓ 22 Drinks Menu</span>
@@ -141,16 +123,12 @@ st.markdown("""
         <div style="font-weight:900; font-size:16px; margin-top:6px;">22 Drinks Live</div>
         <div style="font-size:12px; color:#888;">Hot • Cold • Frapp • Tea</div>
         <div style="background:#000; color:white; padding:10px; border-radius:12px; margin-top:14px; font-size:12px; font-weight:700;">DEPLOYED BY<br><span style="font-size:13px;">NOOR UL HASSAN AWAN</span></div>
-        <div style="font-size:11px; color:#999; margin-top:8px;">Lahore • Pakistan • 2026</div>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ---------- FULL INTERNATIONAL MENU ----------
+# ---------- FULL MENU ----------
 st.markdown("### 📋 Full Starbucks Menu — International Edition")
-st.markdown("<p style='color:#888; font-size:13px;'>Select any drink — values will auto-fill below. Menu inspired by global Starbucks menu.</p>", unsafe_allow_html=True)
-
-# MENU DATA - 22 DRINKS
 menu_data = {
     "☕ HOT COFFEE": [
         ("Black Coffee", "5 kcal", "Zero Sugar • Best for Diet", 0.1, 0.0, 0.3),
@@ -191,7 +169,9 @@ for cat, drinks in menu_data.items():
     cols = st.columns(len(drinks))
     for idx, (name, kcal, desc, f, c, p) in enumerate(drinks):
         with cols[idx]:
-            is_selected = (st.session_state.selected_drink == name)
+            # EXTRA SAFETY - AGAR PHIR BHI KEY NA HO TO DEFAULT
+            current = st.session_state.get("selected_drink", "Cold Coffee")
+            is_selected = (current == name)
             border = "2px solid #000" if is_selected else "1px solid #EEE"
             bg = "#F7F7F7" if is_selected else "white"
             badge = "✓ SELECTED" if is_selected else "Select →"
@@ -201,13 +181,11 @@ for cat, drinks in menu_data.items():
 
 st.write("")
 
-# ---------- MAIN PREDICT AREA ----------
+# ---------- MAIN ----------
 left, right = st.columns([1, 1.25], gap="medium")
-
 with left:
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown(f"### 01 — Your Drink: {st.session_state.selected_drink}")
-    st.markdown("<p style='color:#888; font-size:13px;'>Adjust nutrition from label or choose from menu above.</p>", unsafe_allow_html=True)
+    st.markdown(f"### 01 — Your Drink: {st.session_state.get('selected_drink','Cold Coffee')}")
     fat = st.slider("Fat (g) — Milk / Cream", 0.0, 30.0, key="fat", step=0.5)
     carb = st.slider("Carbs (g) — Sugar / Syrup", 0.0, 100.0, key="carb", step=1.0)
     protein = st.slider("Protein (g) — Milk", 0.0, 30.0, key="protein", step=0.5)
@@ -232,7 +210,6 @@ with left:
         st.markdown(f"<div class='kpi'><b>DAILY BUDGET</b><span>{est_cal/2000*100:.1f}%</span></div>", unsafe_allow_html=True)
     st.write("**Daily Budget — 2000 kcal**")
     st.progress(min(int(est_cal/2000*100), 100))
-    st.caption("Formula: Fat×9 + Carb×4 + Protein×4")
     if st.button("🔄 Reset", use_container_width=True):
         set_drink("Cold Coffee", 4.0, 18.0, 6.0); st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
@@ -240,7 +217,6 @@ with left:
 with right:
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown("### 02 — AI Verdict")
-    st.markdown("<p style='color:#888; font-size:13px;'>Decision Tree Model • Trained by Noor Ul Hassan Awan</p>", unsafe_allow_html=True)
     if not model_ok:
         st.error("Model file missing.")
     else:
@@ -248,26 +224,23 @@ with right:
             df = pd.DataFrame([[fat, carb, protein]], columns=['Fat (g)', 'Carb. (g)', 'Protein'])
             pred = model.predict(df)[0]
             prob = model.predict_proba(df)[0]
-            st.session_state.history.append((st.session_state.selected_drink, est_cal))
+            st.session_state.history.append((st.session_state.get('selected_drink','Cold Coffee'), est_cal))
             if pred == 1:
                 conf = prob[1]*100; health = max(12, 100 - int(est_cal/2.2)); label = "High Calorie"
                 color = "#B42318"; bg = "#FEF3F2"; border = "#FECDC2"; emoji = "⚠️"; title = f"High Calorie — {est_cal} kcal"
-                desc = f"Your {st.session_state.selected_drink} is over 150 kcal. Not ideal for daily use."
-                tip = f"**Professional Swap:** Use Non-fat milk + Sugar-free syrup + No Whip. You will save {int(est_cal*0.38)} kcal. Switch to Black Coffee or Cold Brew for daily use."
+                desc = f"Your {st.session_state.get('selected_drink')} is over 150 kcal."
+                tip = f"**Swap:** Non-fat milk + Sugar-free syrup lo. Tum {int(est_cal*0.38)} kcal bacha loge."
                 verdict = "OCCASIONAL ONLY"; grade = "C Grade"
             else:
                 conf = prob[0]*100; health = min(97, 100 - int(est_cal/5)); label = "Low Calorie"
                 color = "#027A48"; bg = "#ECFDF3"; border = "#ABEFC6"; emoji = "✅"; title = f"Low Calorie — {est_cal} kcal"
-                desc = f"Perfect! Your {st.session_state.selected_drink} is under 150 kcal. Safe for daily use."
-                tip = "**Professional Advice:** Great choice. Keep this routine. High protein makes it good after workout. Don't add extra sugar."
+                desc = f"Perfect! Your {st.session_state.get('selected_drink')} is under 150 kcal."
+                tip = "**Advice:** Great choice. Keep this routine."
                 verdict = "DAILY SAFE"; grade = "A Grade"
             st.markdown(f"""
             <div style="background:{bg}; border:1.5px solid {border}; padding:20px; border-radius:14px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3 style="color:{color}; margin:0;">{emoji} {title}</h3>
-                    <span style="background:white; color:{color}; padding:5px 11px; border-radius:20px; font-size:11px; font-weight:800;">{verdict} • {grade}</span>
-                </div>
-                <p style="font-size:13px; color:{color}; margin:6px 0 0 0;">{desc}</p>
+                <h3 style="color:{color}; margin:0;">{emoji} {title}</h3>
+                <p style="font-size:13px; color:{color};">{desc}</p>
             </div>
             """, unsafe_allow_html=True)
             st.write("")
@@ -275,59 +248,27 @@ with right:
             m1.metric("Confidence", f"{conf:.1f}%")
             m2.metric("Health Score", f"{health}/100")
             m3.metric("Category", label)
-            st.write("**Confidence**"); st.progress(int(conf))
-            st.write("**Health Score**"); st.progress(health)
+            st.progress(int(conf))
             st.info(tip)
-            st.write(f"**Compare — {st.session_state.selected_drink} vs Others**")
-            comp = pd.DataFrame({"Drink": [st.session_state.selected_drink, "Black Coffee", "Cold Coffee", "Frappuccino"], "Calories": [est_cal, 5, 120, 370]})
+            st.write("**Compare**")
+            comp = pd.DataFrame({"Drink": [st.session_state.get('selected_drink'), "Black Coffee", "Cold Coffee", "Frappuccino"], "Calories": [est_cal, 5, 120, 370]})
             st.bar_chart(comp.set_index("Drink"))
-            if len(st.session_state.history) > 0:
-                st.caption(f"History: {st.session_state.history}")
-            report = f"""NutriSip International - Professional Report
-Deployed by NOOR UL HASSAN AWAN
-Date: {datetime.now().strftime('%d %B %Y')}
-Drink: {st.session_state.selected_drink}
-Fat: {fat}g | Carbs: {carb}g | Protein: {protein}g
-Estimated: {est_cal} kcal | Result: {label}
-Confidence: {conf:.1f}% | Health Score: {health}/100
-Grade: {grade} | Verdict: {verdict}
-"""
-            st.download_button("⬇ Download Professional Report", report, file_name="NutriSip_Report.txt", use_container_width=True)
+            report = f"NutriSip Report\nDeployed by NOOR UL HASSAN AWAN\nDrink: {st.session_state.get('selected_drink')}\nCalories: {est_cal} | Result: {label} | Confidence: {conf:.1f}%"
+            st.download_button("⬇ Download Report", report, file_name="NutriSip_Report.txt", use_container_width=True)
         else:
             st.markdown("""
             <div style="background:#F7F7F7; border:1.5px dashed #DDD; padding:32px; border-radius:14px; text-align:center;">
                 <div style="font-size:42px;">☕</div>
-                <div style="font-weight:900; font-size:16px;">Ready for Analysis?</div>
-                <div style="color:#888; font-size:13px; margin-top:6px;">Choose a drink from menu above or adjust sliders.<br>Then click <b>Predict My Drink</b>.</div>
+                <div style="font-weight:900;">Ready for Analysis?</div>
+                <div style="color:#888; font-size:13px;">Menu se drink choose karo ya slider se values dalo.</div>
             </div>
             """, unsafe_allow_html=True)
-            st.write("")
-            st.markdown("""
-            **Why This Project is International Standard?**
-            - 22 Drinks Full Menu — Hot, Cold, Frapp, Tea, Refreshers
-            - Macro Breakdown + Comparison Chart
-            - Health Score + Professional Advice
-            - Clean USA Style Design — No Copy, 100% Original
-            """)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------- FOOTER ----------
 st.markdown("""
 <div style="background:#000; color:white; padding:28px; border-radius:18px; margin-top:22px; display:flex; justify-content:space-between; align-items:center;">
-    <div>
-        <div style="font-size:19px; font-weight:900;">NutriSip <span style="color:#FFD966;">International</span></div>
-        <div style="font-size:12px; color:#AAA; margin-top:4px;">Calorie Intelligence • Semester Project 2026</div>
-    </div>
-    <div style="text-align:center; font-size:12px; line-height:1.7;">
-        <b>DEPLOYED BY</b><br>
-        <span style="font-size:15px; font-weight:900; color:#FFD966;">NOOR UL HASSAN AWAN</span><br>
-        <span style="color:#AAA;">Lahore, Pakistan 🇵🇰</span>
-    </div>
-    <div style="text-align:right; font-size:11px; color:#AAA; line-height:1.7;">
-        Model: Decision Tree • 94.2%<br>
-        Data: Starbucks Global Menu<br>
-        © 2026 All Rights Reserved
-    </div>
+    <div><div style="font-size:19px; font-weight:900;">NutriSip <span style="color:#FFD966;">International</span></div><div style="font-size:12px; color:#AAA;">Semester Project 2026</div></div>
+    <div style="text-align:center;"><b>DEPLOYED BY</b><br><span style="font-size:15px; font-weight:900; color:#FFD966;">NOOR UL HASSAN AWAN</span><br><span style="color:#AAA;">Lahore, Pakistan 🇵🇰</span></div>
+    <div style="text-align:right; font-size:11px; color:#AAA;">Model: Decision Tree • 94.2%<br>© 2026 All Rights Reserved</div>
 </div>
-<p style="text-align:center; color:#999; font-size:11px; margin-top:12px;">Designed in Pakistan • Built for the World • Deployed by Noor Ul Hassan Awan</p>
 """, unsafe_allow_html=True)
